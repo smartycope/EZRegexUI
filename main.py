@@ -7,6 +7,7 @@ from ezregex import *
 from streamlit import components
 import streamlit as st
 import json as _json
+import builtins
 
 # One less dependancy
 def rgbToHex(rgb):
@@ -57,29 +58,27 @@ replacement = replacementPlaceholder.text_area('Enter replacement EZRegex:', key
 if not replace:
     replacementPlaceholder.empty()
 
-# st.session_state['replaceBox']
-
 # Function for adding side bar elements to ezre when they're clicked
 def addPart(input, _replace=False):
     global replace, replacement
     # If there's parameters, remove them. They can reference the side panel.
     input = re.sub(str('(' + matchMax(anything + optional(er.group(comma))) + ')'), '()', input)
+    cur = ezre
+    get = 'ezre'
     if _replace:
         st.session_state['replace_mode'] = True
         replace = True
-        if not len(replacement):
-            st.session_state['replaceBox'] = input
-        elif re.search((optional(' ') + anyof('+', '<<', '>>', '*') + optional(' ') + stringEnd).str(), replacement) is not None:
-            st.session_state['replaceBox'] = replacement + input
-        else:
-            st.session_state['replaceBox'] = replacement + ' + ' + input
+        get = 'replaceBox'
+        cur = replacement
+
+    if not len(cur):
+        st.session_state[get] = input
+    elif re.search((optional(' ') + anyof('+', '<<', '>>', '*') + optional(' ') + stringEnd).str(), cur) is not None:
+        st.session_state[get] = cur + input
+    elif (m := re.search((er.group('()') + ow + stringEnd).str(), cur)) is not None:
+        st.session_state[get] = cur[:(-len(m.group())) + 1] + input + ')'
     else:
-        if not len(ezre):
-            st.session_state['ezre'] = input
-        elif re.search((optional(' ') + anyof('+', '<<', '>>', '*') + optional(' ') + stringEnd).str(), ezre) is not None:
-            st.session_state['ezre'] = ezre + input
-        else:
-            st.session_state['ezre'] = ezre + ' + ' + input
+        st.session_state[get] = cur + ' + ' + input
 
 # Make LaTeX happy
 def escape(s):
@@ -91,6 +90,12 @@ def escape(s):
     # s = re.sub(r'$', r'\$', s)
     # s = re.sub(r'$', '\$', s)
     return s.strip()
+
+def formatInput2code(s):
+    keywords = set(dir(builtins) + dir(er) + re.findall((lineStart + group(word) + ifFollowedBy(ow + '=')).str(), s))
+    # print(anyExcept(anyof(*keywords), type='.*'))
+    # s = re.sub((anyExcept('literal', type='.*')).str(), '"' + replace_entire.str() + '"', s)
+    return '\n'.join(s.splitlines()[:-1]) + '\n_rtn = '  + s.splitlines()[-1]
 
 # Add all the side bar elements
 with st.sidebar:
@@ -108,25 +113,41 @@ with st.sidebar:
                     st.button(camel, on_click=addPart, args=(camel,), kwargs=kwargs, help=help)
                 else:
                     st.button(camel if snake is None else snake, on_click=addPart, args=(camel if snake is None else snake,), kwargs=kwargs, help=help)
-        # st.button('word', on_click=addPart, args=('word',))
+    with st.expander('Operators'):
+        st.markdown("""
+            - `+`, `<<`, `>>`
+                - These all do the same thing: combine expressions
+            - `*`
+                - This does what you think it does. Multiplies an expression a number of times
+            - `+`
+                - A unary + operator acts exactly as a match_max() does, or, if you're familiar with regex syntax, the + operator
+            - `[]`
+                - Coming soon! Not implemented yet, but they will do things similar to match_amt() and match_range()
+        """)
 
 # Generate all the match stuff, if we can
 if len(ezre):
     successful = False
     # Run the code, get the var, and get the JSON search info
     # Set the variable before the end of the last line so we can do variables in the text_area
-    code = '\n'.join(ezre.splitlines()[:-1]) + '\n_rtn = '  + ezre.splitlines()[-1]
+    code = formatInput2code(ezre)
+    print(code)
     local = {}
+    print(0)
     try:
+        print(1)
         exec(code, globals(), local)
+        print(5)
         var = local['_rtn']
         if not len(string):
             try:
+                print(4)
                 string = var.invert()
-            except NotImplementedError:
+                print(3)
+            except:# NotImplementedError:
                 st.error("Can't invert that expression. Try providing a string to match instead.")
-                # raise NotImplementedError("Can't invert that expression. Try providing one instead.")
         json = var._matchJSON(string)
+        print(2)
     except TypeError:
         st.error('Invalid parameters')
     except SyntaxError:
@@ -135,7 +156,7 @@ if len(ezre):
         st.exception(err)
     else:
         successful = True
-
+    print(successful)
     if successful:
         st.divider()
 
@@ -164,7 +185,7 @@ if len(ezre):
                 # Apparently, there's no way to escape a $ that I can find
                 latex = f'{escape(match["match"]["string"])} ({match["match"]["start"]}:{match["match"]["end"]})'
             else:
-                latex = f'$\\text{{\color{{{match["match"]["color"]}}}{escape(match["match"]["string"])} \\textit{{({match["match"]["start"]}:{match["match"]["end"]})}}}}$'
+                latex = f'$\\text{{\color{{{match["match"]["color"]}}}{escape(match["match"]["string"])}}} \\textit{{({match["match"]["start"]}:{match["match"]["end"]})}}$'
             fold = st.expander(latex, (len(json['matches']) == 1) and not replace)
 
             if not len(match['unnamedGroups']) and not len(match['namedGroups']):
