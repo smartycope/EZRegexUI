@@ -63,7 +63,7 @@ if not replace:
 def addPart(input, _replace=False):
     global replace, replacement
     # If there's parameters, remove them. They can reference the side panel.
-    input = re.sub(str('(' + matchMax(anything + optional(group(comma))) + ')'), '()', input)
+    input = re.sub(str('(' + matchMax(anything + optional(er.group(comma))) + ')'), '()', input)
     if _replace:
         st.session_state['replace_mode'] = True
         replace = True
@@ -116,14 +116,22 @@ if len(ezre):
     # Set the variable before the end of the last line so we can do variables in the text_area
     code = '\n'.join(ezre.splitlines()[:-1]) + '\n_rtn = '  + ezre.splitlines()[-1]
     local = {}
-    exec(code, globals(), local)
-    var = local['_rtn']
-    if not len(string):
-        try:
-            string = var.invert()
-        except NotImplementedError:
-            raise NotImplementedError("Can't invert that expression. Try providing one instead.")
-    json = var._matchJSON(string)
+    try:
+        exec(code, globals(), local)
+        var = local['_rtn']
+        if not len(string):
+            try:
+                string = var.invert()
+            except NotImplementedError:
+                st.error("Can't invert that expression. Try providing a string to match instead.")
+                # raise NotImplementedError("Can't invert that expression. Try providing one instead.")
+        json = var._matchJSON(string)
+    except TypeError:
+        st.error('Invalid parameters')
+    except SyntaxError as err:
+        st.error('Invalid syntax in EZRegex code')
+    except Exception as err:
+        st.error(f"Error {err} in EZRegex code")
 
     st.divider()
 
