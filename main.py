@@ -9,12 +9,17 @@ from streamlit import components
 import streamlit as st
 import json as _json
 
+# One less dependancy
+def rgbToHex(rgb):
+    """ Translates an rgb tuple of int to a tkinter friendly color code """
+    return f'#{int(rgb[0]):02x}{int(rgb[1]):02x}{int(rgb[2]):02x}'
+
+def invertColor(rgba):
+    """ Inverts a color """
+    return tuple(255 - c for c in rgba)
+
 # For exec globals
 input = ''
-
-# TODO: Make a repo
-# TODO: Publish on streamlit
-# TODO: add replacement
 
 about = """
     # EZRegex
