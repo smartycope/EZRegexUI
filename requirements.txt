@@ -1,1 +1,2 @@
 ezregex>=1.4.3
+streamlit
