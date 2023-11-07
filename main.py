@@ -132,7 +132,7 @@ if len(ezre):
     except SyntaxError:
         st.error('Invalid syntax in EZRegex code')
     except Exception as err:
-        st.error(f"Error {err} in EZRegex code")
+        st.exception(err)
     else:
         successful = True
 
