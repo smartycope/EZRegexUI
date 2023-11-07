@@ -1,0 +1,196 @@
+{
+    "Matching":{
+        "description": null,
+        "elements":[
+            ["literal(input)", null,
+                "This is a redundant function. You should always be able to use \"... + 'stuff'\" just as easily as \"... + match('stuff')\""],
+            ["isExactly(input)", "is_exactly(input)",
+                "This matches the string if and only if the entire string is exactly equal to `input`"]
+        ]
+    },
+    "Amounts":{
+        "description": null,
+        "elements":[
+            ["matchMax(input)", "match_max(input)",
+                "Match as many of `input` in the string as you can. This is equivelent to using the unary + operator. If `input` is not provided, it works on the previous regex pattern. That's not recommended for clarity's sake though"],
+            ["matchNum(num, input)", "match_num(num, input)",
+                "Match `num` amount of `input` in the string"],
+            ["matchMoreThan(min, input)", "match_more_than(min, input)",
+                "Match more than `min` sequences of `input` in the string"],
+            ["matchAtLeast(min, input)", "match_at_least(min, input)",
+                "Match at least `min` sequences of `input` in the string"],
+            ["matchRange(min, max, input)", "match_range(min, max, input)",
+                "Match between `min` and `max` sequences of `input` in the string. This also accepts greedy and possessive parameters"]
+        ]
+    },
+    "Optionals":{
+        "description": null,
+        "elements":[
+            ["optional(input)", "optional(input)",
+                "Match `input` if it's in string, otherwise still match. This also accepts greedy and possessive parameters"],
+            ["atLeastOne(input)", "at_least_one(input)",
+                "Match at least one of `input` in the string. This also accepts greedy and possessive parameters"],
+            ["atLeastNone(input)", "at_least_none(input)",
+                "Match 0 or more sequences of `input`. This also accepts greedy and possessive parameters"],
+            ["either(input, or_input)", "either(input, or_input)",
+                "Matches either input or or_input. Duh. What did you think it did?"],
+            ["anyBetween(char, and_char)", "any_between(char, and_char)",
+                "Match any char between `char` and `and_char`, using the ASCII table for reference"],
+            ["anyOf(*inputs)", "any_of(*inputs)",
+                "Match any of the given `inputs`. Note that `inputs` can be multiple parameters, or a single string. Can also accept parameters chars and split. If char is set to True, then `inputs` must only be a single string, it interprets `inputs` as characters, and splits it up to find any of the chars in the string. If split is set to true, it forces the ?(...) regex syntax instead of the [...] syntax. It should act the same way, but your output regex will look different. None just means 'optimize it for me'"],
+            ["anyCharExcept(*inputs)", "any_char_except(*inputs)",
+                "This matches any char that is NOT in `inputs`. `inputs` can be multiple parameters, or a single string of chars to split."],
+            ["anyExcept(input)", "any_except(input)",
+                "Matches anything other than `input`"]
+        ]
+    },
+    "Positional":{
+        "description": "These differentiate the *string* starting with a sequence, and a *line* starting with a sequence. Do note that the start of the string is also the start of a line. These can also be called without parameters to denote the start/end of a string/line without something specific having to be next to it.",
+        "elements":[
+            ["stringStartsWith(input)", "string_starts_with(input)", null],
+            ["stringStart", "string_start", null],
+            ["stringEndsWith(input)", "string_ends_with(input)", null],
+            ["stringEnd", "string_end", null],
+            ["lineStartsWith(input)", "line_starts_with(input)", null],
+            ["lineStart", "line_start", null],
+            ["lineEndsWith(input)", "line_ends_with(input)", null],
+            ["lineEnd", "line_end", null]
+        ]
+    },
+    "Single Characters":{
+        "description": null,
+        "elements":[
+            ["whitespace", null, null],
+            ["whitechunk", null,
+                "A \"chunk\" of whitespace. Just any amount of whitespace together"],
+            ["digit", null,
+                "Matches a single digit"],
+            ["number", null,
+                "Matches multiple digits next to each other. Does not match negatives or decimals"],
+            ["word", null, null],
+            ["wordChar", "word_char",
+                "Matches just a single \"word character\", defined as any letter, number, or _"],
+            ["anything", null,
+                "Matches any single character, except a newline. To also match a newline, use literallyAnything"],
+            ["chunk", null,
+                "A \"chunk\": Any clump of characters up until the next newline"]
+        ]
+    },
+    "Explicit Characters":{
+        "description": null,
+        "elements":[
+            ["spaceOrTab", "space_or_tab", null],
+            ["newline", null, null],
+            ["carriageReturn", "carriage_return", null],
+            ["tab", null, null],
+            ["space", null, null],
+            ["quote", null, null],
+            ["verticalTab", "vertical_tab", null],
+            ["formFeed", "form_feed", null],
+            ["comma", null, null],
+            ["period", null, null]
+        ]
+    },
+    "Not Chuncks":{
+        "description": null,
+        "elements":[
+            ["notWhitespace", "not_whitespace", null],
+            ["notDigit", "not_digit", null],
+            ["notWord", "not_word", null]
+        ]
+    },
+    "Sets":{
+        "description": null,
+        "elements":[
+            ["uppercase", null,
+                "Matches just uppercase letters"],
+            ["lowercase", null,
+                "Matches just lowercase letters"],
+            ["letter", null,
+                "Matches just a letter -- not numbers or _ like wordChar."],
+            ["hexDigit", "hex_digit", null],
+            ["octDigit", "oct_digit", null],
+            ["controller", null,
+                "Matches a metadata ASCII characters"],
+            ["printable", null,
+                "Matches printable ASCII characters"],
+            ["printableAndSpace", "printable_and_space", null],
+            ["unicode(name)", null,
+                "Matches a unicode character by name"]
+        ]
+    },
+    "Conditionals":{
+        "description": null,
+        "elements":[
+            ["ifFollowedBy(condition)", "if_followed_by(condition)",
+                "Matches the prior pattern if it has `condition` coming after it"],
+            ["ifNotFollowedBy(condition)", "if_not_followed_by(condition)",
+                "Matches the prior pattern if it does not have `condition` coming after it"],
+            ["ifPrecededBy(condition)", "if_preceded_by(condition)",
+                "Matches the prior pattern if it has `condition` coming before it"],
+            ["ifNotPreceededBy(condition)", "if_not_preceeded_by(condition)",
+                "Matches the prior pattern if it does not have `condition` coming before it"],
+            ["ifEnclosedWith(open, stuff, close)", "if_enclosed_with(open, stuff, close)",
+                "Matches if the string has `open`, then `stuff`, then `close`, but only \"matches\" stuff. Just a combination of ifProceededBy and ifPreceededBy."]
+        ]
+    },
+    "Groups":{
+        "description": null,
+        "elements":[
+            ["group(chain)", "group(chain)",
+                "Causes `chain` to be captured as an unnamed group. Only useful for replacing regexs"],
+            ["namedGroup(name, chain)", "named_group(name, chain)",
+                "Causes `chain` to be captured as a named group, with the name `name`. Only useful for replacing regexs"],
+            ["passiveGroup(chain)", "passive_group(chain)",
+                "As all regexs in EZRegex capture passively, this is entirely useless. But if you really want to, here it is"]
+        ]
+    },
+    "Flags":{
+        "description": "These shadow python regex flags, and can just as easily be specified directly to the re library instead. They're provided here for compatibility with other regex dialects. See https://docs.python.org/3/library/re.html#flags for details",
+        "elements":[
+            ["ASCII", null, null],
+            ["DOTALL", null, null],
+            ["IGNORECASE", null, null],
+            ["LOCALE", null, null],
+            ["MULTILINE", null, null],
+            ["UNICODE", null, null]
+        ]
+    },
+    "Useful Combinations":{
+        "description": "These are some useful combinations that may be commonly used. They are not as stable, and may be changed and added to in later versions to make them more accurate",
+        "elements":[
+            ["literallyAnything", "literally_anything",
+                "*Any* character, include newline"],
+            ["signed", null,
+                "a signed number, including 123, -123, and +123"],
+            ["unsigned", null,
+                "Same as number. Will not match +123"],
+            ["plainFloat", "plain_float",
+                "Will match 123.45 and 123."],
+            ["fullFloat", "full_float",
+                "Will match plain_float as well as things like 1.23e-10 and 1.23e+10"],
+            ["intOrFloat", "int_or_float",
+                "Exactly what it sounds like"],
+            ["ow", null,
+                "\"Optional Whitechunk\""],
+            ["email", null,
+                "Matches an email"]
+        ]
+    },
+    "Misc.":{
+        "description": null,
+        "elements":[
+            ["raw(regex)", null,
+                "If you already have some regular regex written, and you want to incorperate it, this will allow you to include it without sanatizing all the backslaches and such, which all the other EZRegexMembers do automatically."]
+        ]
+    },
+    "Replacement":{
+        "description": "In the intrest of \"I don't want to think about any syntax at all\", I have included replace members. Do note that they are not interoperable with the other EZRegexMembers, and can only be used with other strings and each other.",
+        "elements":[
+            ["replaceGroup(num_or_name)", "replace_group(num_or_name)",
+                "Puts in its place the group specified, either by group number (for unnamed groups) or group name (for named groups). Named groups are also counted by number, I'm pretty sure. Groups are numbered starting from 1."],
+            ["replaceEntire", "replace_entire",
+                "Puts in its place the entire match"]
+        ]
+    }
+}
