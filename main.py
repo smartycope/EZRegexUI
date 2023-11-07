@@ -1,5 +1,4 @@
 import sys
-from Cope.colors import invertColor, rgbToHex
 import re
 import io
 import contextlib
