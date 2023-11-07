@@ -112,6 +112,7 @@ with st.sidebar:
 
 # Generate all the match stuff, if we can
 if len(ezre):
+    successful = False
     # Run the code, get the var, and get the JSON search info
     # Set the variable before the end of the last line so we can do variables in the text_area
     code = '\n'.join(ezre.splitlines()[:-1]) + '\n_rtn = '  + ezre.splitlines()[-1]
@@ -128,71 +129,74 @@ if len(ezre):
         json = var._matchJSON(string)
     except TypeError:
         st.error('Invalid parameters')
-    except SyntaxError as err:
+    except SyntaxError:
         st.error('Invalid syntax in EZRegex code')
     except Exception as err:
         st.error(f"Error {err} in EZRegex code")
+    else:
+        successful = True
 
-    st.divider()
+    if successful:
+        st.divider()
 
-    # left, right = st.columns([.85, .15])
-    st.markdown('### Looking for matches in:')
-    # I don't know WHY this works, but it does, so nobody touch it
-    # right.button('Reload')
-    # Display the match string html with groups all colored
-    st.markdown(json['stringHTML'], True)
+        # left, right = st.columns([.85, .15])
+        st.markdown('### Looking for matches in:')
+        # I don't know WHY this works, but it does, so nobody touch it
+        # right.button('Reload')
+        # Display the match string html with groups all colored
+        st.markdown(json['stringHTML'], True)
 
-    st.markdown('### Using regex:')
-    st.code(json['regex'], language='regex')
+        st.markdown('### Using regex:')
+        st.code(json['regex'], language='regex')
 
-    st.markdown('### Matches:')
-    for match in json['matches']:
-        # st.markdown(f"""
-            # <style>
-            # div[data-testid="stExpander"] div[role="button"] p {{
-            #     color: {match['match']['color']};
-            # }}
-            # </style>
-        # """, unsafe_allow_html=True)
+        st.markdown('### Matches:')
+        for match in json['matches']:
+            # st.markdown(f"""
+                # <style>
+                # div[data-testid="stExpander"] div[role="button"] p {{
+                #     color: {match['match']['color']};
+                # }}
+                # </style>
+            # """, unsafe_allow_html=True)
 
-        # We're using latex here because for SOME reason expanders support named colors, but NOT arbitrary colors
-        if '$' in match['match']['string']:
-            # Apparently, there's no way to escape a $ that I can find
-            latex = f'{escape(match["match"]["string"])} ({match["match"]["start"]}:{match["match"]["end"]})'
-        else:
-            latex = f'$\\text{{\color{{{match["match"]["color"]}}}{escape(match["match"]["string"])} \\textit{{({match["match"]["start"]}:{match["match"]["end"]})}}}}$'
-        fold = st.expander(latex, (len(json['matches']) == 1) and not replace)
+            # We're using latex here because for SOME reason expanders support named colors, but NOT arbitrary colors
+            if '$' in match['match']['string']:
+                # Apparently, there's no way to escape a $ that I can find
+                latex = f'{escape(match["match"]["string"])} ({match["match"]["start"]}:{match["match"]["end"]})'
+            else:
+                latex = f'$\\text{{\color{{{match["match"]["color"]}}}{escape(match["match"]["string"])} \\textit{{({match["match"]["start"]}:{match["match"]["end"]})}}}}$'
+            fold = st.expander(latex, (len(json['matches']) == 1) and not replace)
 
-        if not len(match['unnamedGroups']) and not len(match['namedGroups']):
-            fold.markdown('No groups captured')
-            break
+            if not len(match['unnamedGroups']) and not len(match['namedGroups']):
+                fold.markdown('No groups captured')
+                break
 
-        if len(match['unnamedGroups']):
-            fold.markdown('#### Unnamed Groups')
+            if len(match['unnamedGroups']):
+                fold.markdown('#### Unnamed Groups')
 
-        for cnt, group in enumerate(match['unnamedGroups']):
-            inverse = rgbToHex(invertColor([int(c, base=16) for c in match['match']['color'][1::2]]))
-            fold.markdown(f'''
-                {cnt+1}: <span style="background-color: {group["color"]}; color: {inverse};">{group["string"]}</span>
-                <span style="color: white; font-style: italic;"> ({group["start"]}:{group["end"]})</span>
-            ''', True)
+            for cnt, group in enumerate(match['unnamedGroups']):
+                inverse = rgbToHex(invertColor([int(c, base=16) for c in match['match']['color'][1::2]]))
+                fold.markdown(f'''
+                    {cnt+1}: <span style="background-color: {group["color"]}; color: {inverse};">{group["string"]}</span>
+                    <span style="color: white; font-style: italic;"> ({group["start"]}:{group["end"]})</span>
+                ''', True)
 
-        if len(match['namedGroups']):
-            fold.markdown('#### Named Groups')
-        for name, group in match['namedGroups'].items():
-            inverse = rgbToHex(invertColor([int(c, base=16) for c in match['match']['color'][1::2]]))
-            fold.markdown(f'''
-                {name}: <span style="background-color: {group["color"]}; color: {inverse};">{group["string"]}</span>
-                <span style="color: white; font-style: italic;"> ({group["start"]}:{group["end"]})</span>
-            ''', True)
+            if len(match['namedGroups']):
+                fold.markdown('#### Named Groups')
+            for name, group in match['namedGroups'].items():
+                inverse = rgbToHex(invertColor([int(c, base=16) for c in match['match']['color'][1::2]]))
+                fold.markdown(f'''
+                    {name}: <span style="background-color: {group["color"]}; color: {inverse};">{group["string"]}</span>
+                    <span style="color: white; font-style: italic;"> ({group["start"]}:{group["end"]})</span>
+                ''', True)
 
-    if replace:
-        st.markdown('### Replaced String:')
-        if len(replacement):
-            code = '\n'.join(replacement.splitlines()[:-1]) + '\n_rtn = '  + replacement.splitlines()[-1]
-            local = {}
-            exec(code, globals(), local)
-            repl = local['_rtn']
-        else:
-            repl = ''
-        st.markdown(re.sub(json['regex'], str(repl), string))
+        if replace:
+            st.markdown('### Replaced String:')
+            if len(replacement):
+                code = '\n'.join(replacement.splitlines()[:-1]) + '\n_rtn = '  + replacement.splitlines()[-1]
+                local = {}
+                exec(code, globals(), local)
+                repl = local['_rtn']
+            else:
+                repl = ''
+            st.markdown(re.sub(json['regex'], str(repl), string))
