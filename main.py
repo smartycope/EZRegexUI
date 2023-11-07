@@ -192,11 +192,20 @@ if len(ezre):
 
         if replace:
             st.markdown('### Replaced String:')
-            if len(replacement):
-                code = '\n'.join(replacement.splitlines()[:-1]) + '\n_rtn = '  + replacement.splitlines()[-1]
-                local = {}
-                exec(code, globals(), local)
-                repl = local['_rtn']
+            try:
+                if len(replacement):
+                    code = '\n'.join(replacement.splitlines()[:-1]) + '\n_rtn = '  + replacement.splitlines()[-1]
+                    local = {}
+                    exec(code, globals(), local)
+                    repl = local['_rtn']
+                else:
+                    repl = ''
+                st.markdown(re.sub(json['regex'], str(repl), string))
+            except TypeError:
+                st.error('Invalid parameters in replacement')
+            except SyntaxError:
+                st.error('Invalid syntax in replacement')
+            except Exception as err:
+                st.exception(err)
             else:
-                repl = ''
-            st.markdown(re.sub(json['regex'], str(repl), string))
+                successful = True
