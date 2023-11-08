@@ -1,13 +1,4 @@
 {
-    "Matching":{
-        "description": null,
-        "elements":[
-            ["literal(input)", null,
-                "This is a redundant function. You should always be able to use \"... + 'stuff'\" just as easily as \"... + match('stuff')\""],
-            ["isExactly(input)", "is_exactly(input)",
-                "This matches the string if and only if the entire string is exactly equal to `input`"]
-        ]
-    },
     "Amounts":{
         "description": null,
         "elements":[
@@ -20,28 +11,36 @@
             ["matchAtLeast(min, input)", "match_at_least(min, input)",
                 "Match at least `min` sequences of `input` in the string"],
             ["matchRange(min, max, input)", "match_range(min, max, input)",
-                "Match between `min` and `max` sequences of `input` in the string. This also accepts greedy and possessive parameters"]
+                "Match between `min` and `max` sequences of `input` in the string. This also accepts `greedy` and `possessive` parameters"]
+        ]
+    },
+    "Matching":{
+        "description": null,
+        "elements":[
+            ["literal(input)", null,
+                "This is a redundant function. You should always be able to use `... + 'stuff'` just as easily as `... + literal('stuff')`"],
+            ["isExactly(input)", "is_exactly(input)",
+                "This matches the string if and only if the entire string is exactly equal to `input`"]
         ]
     },
     "Optionals":{
         "description": null,
         "elements":[
             ["optional(input)", "optional(input)",
-                "Match `input` if it's in string, otherwise still match. This also accepts greedy and possessive parameters"],
+                "Match `input` if it's there. This also accepts `greedy` and `possessive` parameters"],
             ["atLeastOne(input)", "at_least_one(input)",
-                "Match at least one of `input` in the string. This also accepts greedy and possessive parameters"],
+                "Match at least one of `input` in the string. This also accepts `greedy` and `possessive` parameters"],
             ["atLeastNone(input)", "at_least_none(input)",
-                "Match 0 or more sequences of `input`. This also accepts greedy and possessive parameters"],
-            ["either(input, or_input)", "either(input, or_input)",
-                "Matches either input or or_input. Duh. What did you think it did?"],
+                "Match 0 or more sequences of `input`. This also accepts `greedy` and `possessive` parameters"],
+            ["either(input, or_input)", "either(input, or_input)", null],
             ["anyBetween(char, and_char)", "any_between(char, and_char)",
                 "Match any char between `char` and `and_char`, using the ASCII table for reference"],
             ["anyOf(*inputs)", "any_of(*inputs)",
-                "Match any of the given `inputs`. Note that `inputs` can be multiple parameters, or a single string. Can also accept parameters chars and split. If char is set to True, then `inputs` must only be a single string, it interprets `inputs` as characters, and splits it up to find any of the chars in the string. If split is set to true, it forces the ?(...) regex syntax instead of the [...] syntax. It should act the same way, but your output regex will look different. None just means 'optimize it for me'"],
+                "Match any of the given `inputs`. Note that `inputs` can be multiple parameters, or a single string. Can also accept parameters chars and split. If char is set to True, then `inputs` must only be a single string, it interprets `inputs` as characters, and splits it up to find any of the chars in the string. If split is set to true, it forces the ?(...) regex syntax instead of the [...] syntax. It should act the same way, but your output regex will look different. By default, it just optimizes it for you."],
             ["anyCharExcept(*inputs)", "any_char_except(*inputs)",
                 "This matches any char that is NOT in `inputs`. `inputs` can be multiple parameters, or a single string of chars to split."],
-            ["anyExcept(input)", "any_except(input)",
-                "Matches anything other than `input`"]
+            ["anyExcept(input, type=anyChar)", "any_except(input, type=any_char)",
+                "Matches anything other than `input`, which must be a single string or EZRegex chain, **not** a list. Also optionally accepts the `type` parameter, which works like this: \"Match any `type` other than `input`\". For example, \"match any word which is not foo\". Do note that this function is new, and I'm still working out the kinks."]
         ]
     },
     "Positional":{
@@ -63,8 +62,7 @@
             ["whitespace", null, null],
             ["whitechunk", null,
                 "A \"chunk\" of whitespace. Just any amount of whitespace together"],
-            ["digit", null,
-                "Matches a single digit"],
+            ["digit", null, null],
             ["number", null,
                 "Matches multiple digits next to each other. Does not match negatives or decimals"],
             ["word", null, null],
@@ -102,10 +100,8 @@
     "Sets":{
         "description": null,
         "elements":[
-            ["uppercase", null,
-                "Matches just uppercase letters"],
-            ["lowercase", null,
-                "Matches just lowercase letters"],
+            ["uppercase", null, null],
+            ["lowercase", null, null],
             ["letter", null,
                 "Matches just a letter -- not numbers or _ like wordChar."],
             ["hexDigit", "hex_digit", null],
@@ -125,13 +121,13 @@
             ["ifFollowedBy(condition)", "if_followed_by(condition)",
                 "Matches the prior pattern if it has `condition` coming after it"],
             ["ifNotFollowedBy(condition)", "if_not_followed_by(condition)",
-                "Matches the prior pattern if it does not have `condition` coming after it"],
+                "Matches the prior pattern if it does **not** have `condition` coming after it"],
             ["ifPrecededBy(condition)", "if_preceded_by(condition)",
                 "Matches the prior pattern if it has `condition` coming before it"],
             ["ifNotPreceededBy(condition)", "if_not_preceeded_by(condition)",
-                "Matches the prior pattern if it does not have `condition` coming before it"],
+                "Matches the prior pattern if it does **not** have `condition` coming before it"],
             ["ifEnclosedWith(open, stuff, close)", "if_enclosed_with(open, stuff, close)",
-                "Matches if the string has `open`, then `stuff`, then `close`, but only \"matches\" stuff. Just a combination of ifProceededBy and ifPreceededBy."]
+                "Matches if the string has `open`, then `stuff`, then `close`, but only \"matches\" stuff. Just a convenience combination of ifProceededBy and ifPreceededBy."]
         ]
     },
     "Groups":{
@@ -143,17 +139,6 @@
                 "Causes `chain` to be captured as a named group, with the name `name`. Only useful for replacing regexs"],
             ["passiveGroup(chain)", "passive_group(chain)",
                 "As all regexs in EZRegex capture passively, this is entirely useless. But if you really want to, here it is"]
-        ]
-    },
-    "Flags":{
-        "description": "These shadow python regex flags, and can just as easily be specified directly to the re library instead. They're provided here for compatibility with other regex dialects. See https://docs.python.org/3/library/re.html#flags for details",
-        "elements":[
-            ["ASCII", null, null],
-            ["DOTALL", null, null],
-            ["IGNORECASE", null, null],
-            ["LOCALE", null, null],
-            ["MULTILINE", null, null],
-            ["UNICODE", null, null]
         ]
     },
     "Useful Combinations":{
@@ -169,12 +154,22 @@
                 "Will match 123.45 and 123."],
             ["fullFloat", "full_float",
                 "Will match plain_float as well as things like 1.23e-10 and 1.23e+10"],
-            ["intOrFloat", "int_or_float",
-                "Exactly what it sounds like"],
+            ["intOrFloat", "int_or_float", null],
             ["ow", null,
                 "\"Optional Whitechunk\""],
             ["email", null,
                 "Matches an email"]
+        ]
+    },
+    "Flags":{
+        "description": "These shadow python regex flags, and can just as easily be specified directly to the re library instead. They're provided here for compatibility with other regex dialects. See https://docs.python.org/3/library/re.html#flags for details",
+        "elements":[
+            ["ASCII", null, null],
+            ["DOTALL", null, null],
+            ["IGNORECASE", null, null],
+            ["LOCALE", null, null],
+            ["MULTILINE", null, null],
+            ["UNICODE", null, null]
         ]
     },
     "Misc.":{

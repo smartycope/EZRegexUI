@@ -12,6 +12,10 @@ import builtins
 # For exec globals
 input = ''
 
+# All the text is stored in here to make the code look better
+with open('text.json', 'r') as f:
+    texts = _json.load(f)
+
 # One less dependancy
 def rgbToHex(rgb):
     """ Translates an rgb tuple of int to a tkinter friendly color code """
@@ -60,6 +64,10 @@ def formatInput2code(s):
     # s = re.sub((anyExcept('literal', type='.*')).str(), '"' + replace_entire.str() + '"', s)
     return '\n'.join(s.splitlines()[:-1]) + '\n_rtn = '  + s.splitlines()[-1]
 
+def _tutorial(key):
+    if tutorial:
+        st.caption(texts['tutorial'][key])
+
 
 about = """
     # EZRegex
@@ -92,8 +100,7 @@ with st.sidebar:
     tutorial = right.checkbox('Tutorial')
 
     st.header('Elements')
-    if tutorial:
-        st.caption('These are all a bunch of elements that represent various levels of abstraction of Regular Expression elements. Use them to specify parts of a string. Hover over to see more info')
+    _tutorial('sidebar')
     with open('elements.json', 'r') as f:
         elements = _json.load(f)
     for groupName, i in elements.items():
@@ -109,39 +116,29 @@ with st.sidebar:
                 if tutorial and help is not None:
                     st.caption(help)
     with st.expander('Operators'):
-        st.markdown("""
-            - `+`, `<<`, `>>`
-                - These all do the same thing: combine expressions
-            - `*`
-                - This does what you think it does. Multiplies an expression a number of times
-            - `+`
-                - A unary + operator acts exactly as a match_max() does, or, if you're familiar with regex syntax, the + operator
-            - `[]`
-                - Coming soon! Not implemented yet, but they will do things similar to match_amt() and match_range()
-        """)
+        st.markdown(texts['operators'])
 
+_tutorial('main')
 # The initial widgets
 ezrePlaceholder = st.empty()
-ezre = ezrePlaceholder.text_area('Enter EZRegex code:', key='ezre', help='This accepts valid Python syntax. The last line must be an EZRegex expression', value="var = lineStart + group(word)\nvar + ow + '=' + ow + namedGroup('value', +anything)" if tutorial else '')
-if tutorial:
-    st.caption('This accepts valid Python syntax. The last line must be an EZRegex expression')
+ezre = ezrePlaceholder.text_area('Enter EZRegex code:', key='ezre', help='This accepts valid Python syntax. The last line must be an EZRegex expression', value=texts['tutorial']['defaultPattern'] if tutorial else '', height=150 if tutorial else None)
+_tutorial('ezre')
 
 placeholder = st.empty()
-string = placeholder.text_area('Enter string to match:', key='string', placeholder='Leave empty to automatically generate an example of what it would match', value="foo = 8 - 9\nbar='hello world!'" if tutorial else '')
-if tutorial:
-    st.caption('Put text here you want to try to match the pattern against. Or you can leave it empty to auto-generate some text which would match the pattern')
+string = placeholder.text_area('Enter string to match:', key='string', placeholder='Leave empty to automatically generate an example of what it would match', value=texts['tutorial']['defaultString'] if tutorial else '')
+_tutorial('string')
 
 replacementPlaceholder = st.empty()
 tutorialReplacementPlaceholder = st.empty()
 left, right = st.columns([.85, .15])
 right.button('Reload')
 replace = left.checkbox('Replacement Mode', key='replace_mode', value=tutorial)
-replacement = replacementPlaceholder.text_area('Enter replacement EZRegex:', key='replaceBox', help='This accepts valid Python syntax. The last line must be an EZRegex expression', value="replaceGroup(1) + ': ' + replaceGroup('value') + ','" if tutorial else '')
+replacement = replacementPlaceholder.text_area('Enter replacement EZRegex:', key='replaceBox', help='This accepts valid Python syntax. The last line must be an EZRegex expression', value=texts['tutorial']['defaultReplace'] if tutorial else '')
 
 if not replace:
     replacementPlaceholder.empty()
 elif tutorial:
-    tutorialReplacementPlaceholder.caption('Here, put text you want to replace (uses re.sub()). Use the replacement section to add groups')
+    tutorialReplacementPlaceholder.caption(texts['tutorial']['replaceBox'])
 
 # Generate all the match stuff, if we can
 if len(ezre):
@@ -149,23 +146,16 @@ if len(ezre):
     # Run the code, get the var, and get the JSON search info
     # Set the variable before the end of the last line so we can do variables in the text_area
     code = formatInput2code(ezre)
-    print(code)
     local = {}
-    print(0)
     try:
-        print(1)
         exec(code, globals(), local)
-        print(5)
         var = local['_rtn']
         if not len(string):
             try:
-                print(4)
                 string = var.invert()
-                print(3)
             except:# NotImplementedError:
                 st.error("Can't invert that expression. Try providing a string to match instead.")
         json = var._matchJSON(string)
-        print(2)
     except TypeError:
         st.error('Invalid parameters')
     except SyntaxError:
@@ -174,7 +164,7 @@ if len(ezre):
         st.exception(err)
     else:
         successful = True
-    print(successful)
+
     if successful:
         st.divider()
 
@@ -183,16 +173,16 @@ if len(ezre):
         # I don't know WHY this works, but it does, so nobody touch it
         # right.button('Reload')
         # Display the match string html with groups all colored
-        st.markdown(json['stringHTML'], True)
-        if tutorial:
-            st.caption('Here you can see your string (provided, or generated). Text color denotes induvidual matches, and background color indicates seperate matched named and unnamed groups.')
+        # double newline because markdown is weird like that
+        st.markdown(json['stringHTML'].replace('\n', '\n\n'), True)
+        _tutorial('matching')
 
         st.markdown('### Using regex:')
         st.code(json['regex'], language='regex')
-        if tutorial:
-            st.caption('This is the regex which gets generated when you compile the EZRegex string. You can copy this into your program if you don\'t want to use the ezregex python package directly.')
+        _tutorial('regex')
 
         st.markdown('### Matches:')
+        _tutorial('matches')
         for match in json['matches']:
             # st.markdown(f"""
                 # <style>
@@ -215,7 +205,7 @@ if len(ezre):
                 break
 
             if tutorial:
-                fold.caption('These are the named and unnamed groups found in the match, also color coded and indexed. Remember that group #0 is always the entire match')
+                fold.caption(texts['tutorial']['groups'])
 
             if len(match['unnamedGroups']):
                 fold.markdown('#### Unnamed Groups')
@@ -236,10 +226,9 @@ if len(ezre):
                     <span style="color: white; font-style: italic;"> ({group["start"]}:{group["end"]})</span>
                 ''', True)
 
-        if tutorial:
-            st.caption('Here there are all the matches found in the string. They\'re all color coded for easy locating. The numbers in parenthesis are the indecies which the match is in the string')
         if replace:
             st.markdown('### Replaced String:')
+            _tutorial('replaced')
             try:
                 if len(replacement):
                     code = '\n'.join(replacement.splitlines()[:-1]) + '\n_rtn = '  + replacement.splitlines()[-1]
@@ -248,7 +237,7 @@ if len(ezre):
                     repl = local['_rtn']
                 else:
                     repl = ''
-                st.markdown(re.sub(json['regex'], str(repl), string))
+                st.markdown(re.sub(json['regex'], str(repl), string).replace('\n', '\n\n'))
             except TypeError:
                 st.error('Invalid parameters in replacement')
             except SyntaxError:
@@ -257,6 +246,3 @@ if len(ezre):
                 st.exception(err)
             else:
                 successful = True
-
-            if tutorial:
-                st.caption('This is the string you would get if you replaced the `pattern` with the `replacement` in the `string`.')
