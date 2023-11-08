@@ -9,6 +9,9 @@ import streamlit as st
 import json as _json
 import builtins
 
+# For exec globals
+input = ''
+
 # One less dependancy
 def rgbToHex(rgb):
     """ Translates an rgb tuple of int to a tkinter friendly color code """
@@ -17,46 +20,6 @@ def rgbToHex(rgb):
 def invertColor(rgba):
     """ Inverts a color """
     return tuple(255 - c for c in rgba)
-
-# For exec globals
-input = ''
-
-about = """
-    # EZRegex
-    An readable and intuitive way to generate Regular Expressions
-
-    EZRegex is also a fully fledged Python package on PyPi and github! Check it out at
-    - https://github.com/smartycope/ezregex
-    - https://pypi.org/project/ezregex/
-        - pip install ezregex
-
-    This website, and associated package is liscensed under the MIT License. No rights reserved.
-
-    If you'd like to make a donation, my venmo is @Copeland-Carter
-
-    All credit goes to Copeland Carter, the Computer Goblin.
-"""
-st.set_page_config(page_title='EZRegex', initial_sidebar_state='expanded', menu_items={
-    'Get help': None,
-    'Report a Bug': 'mailto:smartycope@gmail.com',
-    'About': about
-})
-st.title('EZRegex')
-st.caption(f"Copeland Carter | version {er.__version__}")
-
-# The initial widgets
-ezrePlaceholder = st.empty()
-ezre = ezrePlaceholder.text_area('Enter EZRegex code:', key='ezre', help='This accepts valid Python syntax. The last line must be an EZRegex expression')
-placeholder = st.empty()
-string = placeholder.text_area('Enter string to match:', placeholder='Leave empty to automatically generate an example of what it would match')
-replacementPlaceholder = st.empty()
-left, right = st.columns([.85, .15])
-right.button('Reload')
-replace = left.checkbox('Replacement Mode', key='replace_mode', value=False)
-replacement = replacementPlaceholder.text_area('Enter replacement EZRegex:', key='replaceBox', help='This accepts valid Python syntax. The last line must be an EZRegex expression')
-
-if not replace:
-    replacementPlaceholder.empty()
 
 # Function for adding side bar elements to ezre when they're clicked
 def addPart(input, _replace=False):
@@ -97,22 +60,54 @@ def formatInput2code(s):
     # s = re.sub((anyExcept('literal', type='.*')).str(), '"' + replace_entire.str() + '"', s)
     return '\n'.join(s.splitlines()[:-1]) + '\n_rtn = '  + s.splitlines()[-1]
 
+
+about = """
+    # EZRegex
+    An readable and intuitive way to generate Regular Expressions
+
+    EZRegex is also a fully fledged Python package on PyPi and github! Check it out at
+    - https://github.com/smartycope/ezregex
+    - https://pypi.org/project/ezregex/
+        - pip install ezregex
+
+    This website, and associated package is liscensed under the MIT License. No rights reserved.
+
+    If you'd like to make a donation, my venmo is @Copeland-Carter
+
+    All credit goes to Copeland Carter, the Computer Goblin.
+"""
+st.set_page_config(page_title='EZRegex', initial_sidebar_state='expanded', menu_items={
+    'Get help': None,
+    'Report a Bug': 'mailto:smartycope@gmail.com',
+    'About': about
+})
+st.title('EZRegex')
+st.caption(f"Copeland Carter | version {er.__version__}")
+
+
 # Add all the side bar elements
 with st.sidebar:
-    style = st.radio('Style', ['camelCase', 'snake_case'])
+    left, right = st.columns(2)
+    style = left.radio('Style', ['camelCase', 'snake_case'])
+    tutorial = right.checkbox('Tutorial')
+
     st.header('Elements')
+    if tutorial:
+        st.caption('These are all a bunch of elements that represent various levels of abstraction of Regular Expression elements. Use them to specify parts of a string. Hover over to see more info')
     with open('elements.json', 'r') as f:
         elements = _json.load(f)
     for groupName, i in elements.items():
         with st.expander(groupName):
             if i['description'] is not None:
-                st.markdown(i['description'])
+                st.caption(i['description'])
             for camel, snake, help in i['elements']:
                 kwargs = {'_replace': True} if groupName == 'Replacement' else {}
                 if style == 'camelCase':
                     st.button(camel, on_click=addPart, args=(camel,), kwargs=kwargs, help=help)
                 else:
                     st.button(camel if snake is None else snake, on_click=addPart, args=(camel if snake is None else snake,), kwargs=kwargs, help=help)
+                if tutorial and help is not None:
+                    st.caption(help)
     with st.expander('Operators'):
         st.markdown("""
             - `+`, `<<`, `>>`
@@ -124,6 +119,29 @@ with st.sidebar:
             - `[]`
                 - Coming soon! Not implemented yet, but they will do things similar to match_amt() and match_range()
         """)
+
+# The initial widgets
+ezrePlaceholder = st.empty()
+ezre = ezrePlaceholder.text_area('Enter EZRegex code:', key='ezre', help='This accepts valid Python syntax. The last line must be an EZRegex expression', value="var = lineStart + group(word)\nvar + ow + '=' + ow + namedGroup('value', +anything)" if tutorial else '')
+if tutorial:
+    st.caption('This accepts valid Python syntax. The last line must be an EZRegex expression')
+
+placeholder = st.empty()
+string = placeholder.text_area('Enter string to match:', key='string', placeholder='Leave empty to automatically generate an example of what it would match', value="foo = 8 - 9\nbar='hello world!'" if tutorial else '')
+if tutorial:
+    st.caption('Put text here you want to try to match the pattern against. Or you can leave it empty to auto-generate some text which would match the pattern')
+
+replacementPlaceholder = st.empty()
+tutorialReplacementPlaceholder = st.empty()
+left, right = st.columns([.85, .15])
+right.button('Reload')
+replace = left.checkbox('Replacement Mode', key='replace_mode', value=tutorial)
+replacement = replacementPlaceholder.text_area('Enter replacement EZRegex:', key='replaceBox', help='This accepts valid Python syntax. The last line must be an EZRegex expression', value="replaceGroup(1) + ': ' + replaceGroup('value') + ','" if tutorial else '')
+
+if not replace:
+    replacementPlaceholder.empty()
+elif tutorial:
+    tutorialReplacementPlaceholder.caption('Here, put text you want to replace (uses re.sub()). Use the replacement section to add groups')
 
 # Generate all the match stuff, if we can
 if len(ezre):
@@ -166,9 +184,13 @@ if len(ezre):
         # right.button('Reload')
         # Display the match string html with groups all colored
         st.markdown(json['stringHTML'], True)
+        if tutorial:
+            st.caption('Here you can see your string (provided, or generated). Text color denotes induvidual matches, and background color indicates seperate matched named and unnamed groups.')
 
         st.markdown('### Using regex:')
         st.code(json['regex'], language='regex')
+        if tutorial:
+            st.caption('This is the regex which gets generated when you compile the EZRegex string. You can copy this into your program if you don\'t want to use the ezregex python package directly.')
 
         st.markdown('### Matches:')
         for match in json['matches']:
@@ -192,6 +214,9 @@ if len(ezre):
                 fold.markdown('No groups captured')
                 break
 
+            if tutorial:
+                fold.caption('These are the named and unnamed groups found in the match, also color coded and indexed. Remember that group #0 is always the entire match')
+
             if len(match['unnamedGroups']):
                 fold.markdown('#### Unnamed Groups')
 
@@ -211,6 +236,8 @@ if len(ezre):
                     <span style="color: white; font-style: italic;"> ({group["start"]}:{group["end"]})</span>
                 ''', True)
 
+        if tutorial:
+            st.caption('Here there are all the matches found in the string. They\'re all color coded for easy locating. The numbers in parenthesis are the indecies which the match is in the string')
         if replace:
             st.markdown('### Replaced String:')
             try:
@@ -230,3 +257,6 @@ if len(ezre):
                 st.exception(err)
             else:
                 successful = True
+
+            if tutorial:
+                st.caption('This is the string you would get if you replaced the `pattern` with the `replacement` in the `string`.')
