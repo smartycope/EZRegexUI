@@ -8,17 +8,7 @@ from code_editor import code_editor
 
 # TODO:
 # groups are sequential within each match, (I think), they should be sequential globally
-#// 2 matches overlapping mess each other up, print wrong, and are shown in groups wrong
-#// Syntax highlighting
-#// Other re functions other than just replacement (match? split?)
 # Make group have a default named parameter instead of 2 seperate functions
-#// code editor line wrapping
-
-
-# TODO Immediate:
-#// tutorial stopped inserting into ezre and replacement
-#// hitting ctrl+enter was acting weird, test that lots
-#// replacement is acting weird, test that lots
 
 logo = './ezregex_logo.png'
 snippets = ''
@@ -39,10 +29,6 @@ if "ezre" not in st.session_state:
     st.session_state.ezre = {'text':'', 'id':-1}
 if "replacement" not in st.session_state:
     st.session_state.replacement = {'text':'', 'id':-1}
-
-# print(st.session_state['ezre']['text'])
-if 'ezre_toAdd' in st.session_state:
-    print(st.session_state['ezre_toAdd'])
 
 # All the text is stored in here to make the code look better
 with open('text.json', 'r') as f:
@@ -185,7 +171,6 @@ id = st.session_state.get('ezre_prevID')
 if id is not None and id != resp['id']:
     st.session_state['ezre_toAdd'] = ''
     st.session_state['ezre_prevID'] = resp['id']
-    print('rerunning from here')
     st.rerun()
 
 st.session_state['ezre_prevID'] = resp['id']
@@ -360,4 +345,3 @@ if len(ezre):
             # for part in parts:
                 # st.markdown(part)
             st.table(repr(i) for i in parts)
-            print(parts)
