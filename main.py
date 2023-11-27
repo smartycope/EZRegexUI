@@ -9,6 +9,7 @@ from code_editor import code_editor
 # TODO:
 # groups are sequential within each match, (I think), they should be sequential globally
 # Make group have a default named parameter instead of 2 seperate functions
+# Figure out how to add the icon to GitHub Pages
 
 logo = './ezregex_logo.png'
 snippets = ''
