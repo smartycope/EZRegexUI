@@ -11,7 +11,7 @@ from code_editor import code_editor
 # Make group have a default named parameter instead of 2 seperate functions
 # Figure out how to add the icon to GitHub Pages
 
-logo = './ezregex_logo.png'
+logo = './favicon.png'
 snippets = ''
 replacement_snippets = ''
 # For exec globals
