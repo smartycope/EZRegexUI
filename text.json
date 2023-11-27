@@ -1,18 +1,28 @@
 {
-    "operators": "- `+`, `<<`, `>>`\n\t- These all do the same thing: combine expressions\n- `*`\n\t- This does what you think it does. Multiplies an expression a number of times\n- `+`\n\t- A unary + operator acts exactly as a match_max() does, or, if you're familiar with regex syntax, the + operator\n- `[]`\n\t- Coming soon! Not implemented yet, but they will do things similar to match_amt() and match_range()\n- `&`\n\t- Coming soon! This will work like the + operator, but they can be out of order. Like an and operation.\n- `|`\n\t- Coming soon! This will work like an or operation, which will work just like the anyOf()",
+    "operators": "- `+`, `<<`, `>>`\n\t- These all do the same thing: combine expressions\n- `*`\n\t- This multiplies an expression, i.e. word * 3 == word + word + word\n- `+`\n\t- A unary + operator acts exactly as a match_max() does, or, if you're familiar with regex syntax, the + operator\n- `[]`\n\t- Coming soon! Not implemented yet, but they will do things similar to match_amt() and match_range()\n- `&`\n\t- Coming soon! This will work like the + operator, but they can be out of order. Like an and operation.\n- `|`\n\t- Coming soon! This will work like an or operation, which will work just like the anyOf()",
+    "about": "# EZRegex\nAn readable and intuitive way to generate Regular Expressions\n\nEZRegex is also a fully fledged Python package on PyPi and github! Check it out at\n- https://github.com/smartycope/ezregex\n- https://pypi.org/project/ezregex/\n- pip install ezregex\n\nThis website, and associated package is liscensed under the MIT License. No rights reserved.\n\nIf you'd like to make a donation, my venmo is @Copeland-Carter\n\nAll credit goes to Copeland Carter, the Computer Goblin.",
+    "ezreHelp": "This accepts valid Python syntax. The last line must be an EZRegex expression",
+    "stringPlaceholder":"Leave empty to automatically generate an example of what it would match",
+    "replacementHelp":"This accepts valid Python syntax. The last line must be an EZRegex expression",
     "tutorial":{
-        "main": "Welcome to EZRegex! This is a fancy frontend for the ezregex Python library.\n\nThis is an abstraction on top of Regular Expressions. You don't need to know any Regular Expression syntax to use this. It's also not limited to Python! You can copy the regex provided below, and it should work with any language which supports Regular Expressions. All the functions available are provided on the side with buttons, which you can click to add to the pattern.",
-        "ezre": "This accepts valid Python syntax. The last line must be an EZRegex expression",
+        "main": "Welcome to EZRegex! This is a fancy frontend for the ezregex Python library.\n\nThis is an abstraction on top of Regular Expressions: you don't need to know any Regular Expression syntax to use this. It's also not limited to Python! You can copy the regex provided below, and it should work with any language or program which supports Regular Expressions. All the functions available are provided on the side with buttons, which you can click to add to the pattern, and will also pop up as you start typing.",
+        "ezre": "This accepts valid Python syntax. The last line must be an EZRegex expression.\n\n*NOTE:* Make sure to submit any changes (press Ctrl+Enter) before adding elements via the buttons on the side, or it will erase all your changes. Yes, this is annoying, but it's conceptually impossible to fix.",
         "string": "Put text here you want to try to match the pattern against. Or you can leave it empty to auto-generate some text which would match the pattern",
         "replaceBox": "Here, put text you want to replace (uses re.sub()). Use the replacement section to add groups",
         "matching": "Here you can see your string (provided, or generated). Text color denotes induvidual matches, and background color indicates seperate matched named and unnamed groups.",
         "regex": "This is the regex which gets generated when you compile the EZRegex string. You can copy this into your program if you don't want to use the ezregex python package directly.",
         "groups": "These are the named and unnamed groups found in the match, also color coded and indexed. Remember that group #0 is always the entire match",
         "matches": "Here there are all the matches found in the string. They're all color coded for easy locating. The numbers in parenthesis are the indecies which the match is in the string",
-        "replaced": "This is the string you would get if you replaced the `pattern` with the `replacement` in the `string`.",
+        "replaced": "This is the string you would get if you replaced all instances of the `pattern` in the `string` with the `replacement`.",
+        "split": "This is all the parts you get if you split the given string in chunks of `pattern`. This includes stuff that doesn't match in between the stuff that does. For instance, if the string starts with a pattern that matches, the first index will be an empty string.",
         "sidebar": "These are all a bunch of elements that represent various levels of abstraction of Regular Expression elements. Use them to specify parts of a string. Hover over to see more info",
-        "defaultPattern": "# This already exists, as a convenience pattern\now = optional(whitechunk)\n# The unary + operator works just like the matchMax() function. See the operators section in the side bar for more\nlineStart + group(word) + ow + '=' + ow + namedGroup('value', +anything)",
+        "defaultPattern": "# This already exists as a convenience pattern\now = optional(whitechunk)\n# The unary + operator works just like the matchMax() function.\n# See the operators section in the side bar for more\nlineStart + group(word) + ow + '=' + ow + namedGroup('value', +anything)",
         "defaultString": "foo = 8 - 9\nbar='hello world!'",
-        "defaultReplace": "replaceGroup(1) + ': ' + replaceGroup('value')"
-    }
+        "defaultReplace": "# rgroup() is an alias of replaceGroup()\nreplaceGroup(1) + ': ' + rgroup('value')"
+    },
+    "modeCaptions":[
+        "Find all matches in the search string",
+        "Replace each instance of the pattern in the search string with the replacement pattern",
+        "Split the search string up into sections of the pattern"
+    ]
 }
