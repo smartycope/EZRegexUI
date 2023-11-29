@@ -10,6 +10,7 @@ from code_editor import code_editor
 # groups are sequential within each match, (I think), they should be sequential globally
 # Make group have a default named parameter instead of 2 seperate functions
 # Figure out how to add the icon to GitHub Pages
+# Make the buttons add at the cursor index, not at the end (or an option to)
 
 logo = './favicon.png'
 snippets = ''
