@@ -83,12 +83,18 @@ def escape(s):
 
 # TODO:
 # Breaking up the last line with \ or () will fail, cause we're adding the rtn = at the last line
-#   - also if the last line is a comment, it will fial
+#   - also if the last line is a comment, it will fail
 def formatInput2code(s):
     # keywords = set(dir(builtins) + dir(er) + re.findall((lineStart + group(word) + ifFollowedBy(ow + '=')).str(), s))
     # print(anyExcept(anyof(*keywords), type='.*'))
     # s = re.sub((anyExcept('literal', type='.*')).str(), '"' + replace_entire.str() + '"', s)
-    return '\n'.join(s.splitlines()[:-1]) + '\n_rtn = '  + s.splitlines()[-1]
+    lines = s.splitlines()
+    # Remove the last lines which are actually comments
+    while s.splitlines()[-1].strip().startswith('#'):
+        lines.pop(-1)
+    # Insert the variable assignment to the last line
+    lines.append('\n_rtn = '  + lines.pop(-1))
+    return '\n'.join(lines)
 
 def _tutorial(key):
     if tutorial:
