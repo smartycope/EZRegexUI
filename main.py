@@ -121,9 +121,10 @@ st.caption(f"Copeland Carter | version {er.__version__}")
 
 # Add all the side bar elements
 with st.sidebar:
-    left, right = st.columns(2)
-    style = left.radio('Style', ['camelCase', 'snake_case'])
-    tutorial = right.checkbox('Tutorial')
+    left, right = st.columns([.65, .35])
+    style = left.radio('Style', ['camelCase', 'snake_case'], horizontal=True)
+    right.markdown('')
+    tutorial = right.checkbox('Walkthrough')
 
     st.header('Elements')
     _tutorial('sidebar')
