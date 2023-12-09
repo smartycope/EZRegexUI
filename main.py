@@ -5,13 +5,26 @@ import streamlit as st
 import json as _json
 import builtins
 from code_editor import code_editor
+import inspect
 
-# TODO:
+# ─── TODO ───────────────────────────────────────────────────────────────────────
 # groups are sequential within each match, (I think), they should be sequential globally
 # Make group have a default named parameter instead of 2 seperate functions
 # Figure out how to add the icon to GitHub Pages
 # Make the buttons add at the cursor index, not at the end (or an option to)
+# Option for which method of inverting we use
+# Add a run button in the pattern box for mobile
+# Penultimate lines ending in \ will break
+# Add a code box holding the replacement regex as well
+# Replacement box just disappears after you submit the ezre pattern
+# add settings for inverting
+# I think latex breaks on underscores
+# Remove snippets
+# add icon somewhere on page
+# Somehow add a button which generates n number of example matches
+# Add some sort of not found box if seach fails
 
+# ─── SETUP ──────────────────────────────────────────────────────────────────────
 logo = './favicon.png'
 snippets = ''
 replacement_snippets = ''
@@ -36,6 +49,19 @@ if "replacement" not in st.session_state:
 with open('text.json', 'r') as f:
     texts = _json.load(f)
 
+st.set_page_config(
+    page_title='EZRegex',
+    page_icon=logo,
+    initial_sidebar_state='expanded',
+    layout='wide',
+    menu_items={
+        'Get help': None,
+        'Report a Bug': 'mailto:smartycope@gmail.com',
+        'About': texts['about']
+    }
+)
+
+# ─── FUNCTIONS ──────────────────────────────────────────────────────────────────
 # One less dependancy
 def rgbToHex(rgb):
     return f'#{int(rgb[0]):02x}{int(rgb[1]):02x}{int(rgb[2]):02x}'
@@ -100,69 +126,83 @@ def _tutorial(key):
     if tutorial:
         st.caption(texts['tutorial'][key])
 
+def camel2snake(camel):
+    mach = re.sub((group(lowercase) + group(uppercase)).str(), (rgroup(1) + '_' + rgroup(2)).str(), camel)
+    if mach is None:
+        return camel
+    else:
+        return mach.lower()
+
 def snippify(func:str):
-    if '(' not in func:
+    element = globals()[func]
+    # If this is true, it's a basic singleton without parameters
+    if type(element) is EZRegexMember:
         return func
-    # else:
-    return func
+    else:
+        sig = inspect.signature(element)
+        rtn = func + '(' + ', '.join('${' + str(cnt+1) + ':' + p.name + '}' for cnt, p in enumerate(sig.parameters.values()) if p.default == inspect._empty) + ')' + '$0'
+        return rtn
 
-
-st.set_page_config(
-    page_title='EZRegex',
-    page_icon=logo,
-    initial_sidebar_state='expanded',
-    layout='wide',
-    menu_items={
-        'Get help': None,
-        'Report a Bug': 'mailto:smartycope@gmail.com',
-        'About': texts['about']
-    }
-)
-
+# ─── Page ───────────────────────────────────────────────────────────────────────
 # The actual page
 # left, right = st.columns([.09, 1])
 # left.image(logo, width=103)
 st.title('EZRegex')
 st.caption(f"Copeland Carter | version {er.__version__}")
 
+# ─── SIDEBAR ────────────────────────────────────────────────────────────────────
 # Add all the side bar elements
 with st.sidebar:
-    left, right = st.columns([.65, .35])
+    left, right = st.columns(2)
     style = left.radio('Style', ['camelCase', 'snake_case'], horizontal=True)
     right.markdown('')
     tutorial = right.checkbox('Walkthrough')
 
     st.header('Elements')
     _tutorial('sidebar')
-    with open('elements.json', 'r') as f:
-        erElements = _json.load(f)
-    for groupName, i in erElements.items():
-        with st.expander(groupName):
-            if i['description'] is not None:
-                st.caption(i['description'])
-            for camel, snake, help in i['elements']:
-                kwargs = {'_replace': True} if groupName == 'Replacement' else {}
-                if style == 'camelCase':
-                    name = camel
+
+    s = ''
+    for groupName, elements in er.__groups__.items():
+        with st.expander(groupName.title()):
+            # Add the optional group description
+            if groupName in er.__docs__['groups_docs']:
+                st.caption(er.__docs__['groups_docs'][groupName])
+
+            for element in elements:
+                if element in er.__docs__:
+                    help = er.__docs__[element]
                 else:
-                    name = camel if snake is None else snake
+                    help = None
+
+                if style == 'camelCase':
+                    name = element
+                else:
+                    name = camel2snake(element)
+
+                # Now that we made the buttons, while we're here, also make the snippets
+                snip = f'snippet {name}\n\t{snippify(name)}\n'
+                snippets += snip
+
+                actual = globals()[element]
+                if type(actual) is not EZRegexMember:
+                    sig = inspect.signature(actual)
+                    name += '(' + ', '.join(p.name for p in sig.parameters.values()) + ')'
+
+                kwargs = {'_replace': True} if groupName == 'replacement' else {}
                 st.button(name, on_click=addPart, args=(name,), kwargs=kwargs, help=help)
 
                 if tutorial and help is not None:
                     st.caption(help)
 
-                # Now that we made the buttons, while we're here, also make the snippets
-                snippets += f'snippet {name}\n\t{snippify(name)}\n'
 
     with st.expander('Operators'):
         st.markdown(texts['operators'])
 
-
-# The initial widgets
+# ─── MAIN PAGE ──────────────────────────────────────────────────────────────────
 _tutorial('main')
 st.markdown('Enter EZRegex pattern:')
 
-# ezre pattern box
+# ─── PATTERN BOX ────────────────────────────────────────────────────────────────
 ezre = st.session_state['ezre']['text'] if 'ezre' in st.session_state else ''
 new = st.session_state.get('ezre_toAdd')
 if new is not None:
@@ -170,7 +210,7 @@ if new is not None:
 if tutorial:
     ezre = texts['tutorial']['defaultPattern']
 
-snippetsRemove= ''
+snippetsRemove = ''
 resp = code_editor(ezre,
     key='ezre',
     snippets=[snippets, snippetsRemove],
@@ -185,7 +225,7 @@ if id is not None and id != resp['id']:
 st.session_state['ezre_prevID'] = resp['id']
 _tutorial('ezre')
 
-# String input box
+# ─── STRING INPUT BOX ───────────────────────────────────────────────────────────
 placeholder = st.empty()
 string = placeholder.text_area(
     'Enter string to match:',
@@ -195,7 +235,6 @@ string = placeholder.text_area(
 )
 _tutorial('string')
 
-# Replacement pattern box
 st.markdown('Enter replacement EZRegex:')
 replacementPlaceholder = st.empty()
 tutorialReplacementPlaceholder = st.empty()
@@ -207,8 +246,12 @@ mode = left.radio('Mode',
     captions=texts['modeCaptions'] if tutorial else None,
     horizontal=not tutorial,
     index=0 if not tutorial else 1,
+    key='mode',
 )
+print('-'*100)
+print(f'mode: {st.session_state.mode}')
 
+# ─── REPLACEMENT PATTERN BOX ────────────────────────────────────────────────────
 with replacementPlaceholder:
     replacement = st.session_state['replacement']['text'] if 'replacement' in st.session_state else ''
     new = st.session_state.get('replacement_toAdd')
@@ -230,8 +273,10 @@ with replacementPlaceholder:
 
     st.session_state['replacement_prevID'] = resp['id']
 
+print(f'mode: {mode}')
 # If it's in the wrong mode, erase the box we just made.
 if mode != 'Replace':
+    print('erasing')
     replacementPlaceholder.empty()
 elif tutorial:
     tutorialReplacementPlaceholder.caption(texts['tutorial']['replaceBox'])
