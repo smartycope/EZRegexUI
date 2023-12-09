@@ -25,6 +25,7 @@ import inspect
 # Add some sort of not found box if seach fails
 
 # ─── SETUP ──────────────────────────────────────────────────────────────────────
+# print('-'*100)
 logo = './favicon.png'
 snippets = ''
 replacement_snippets = ''
@@ -107,9 +108,6 @@ def escape(s):
     # s = re.sub(r'$', '\$', s)
     return s.strip()
 
-# TODO:
-# Breaking up the last line with \ or () will fail, cause we're adding the rtn = at the last line
-#   - also if the last line is a comment, it will fail
 def formatInput2code(s):
     # keywords = set(dir(builtins) + dir(er) + re.findall((lineStart + group(word) + ifFollowedBy(ow + '=')).str(), s))
     # print(anyExcept(anyof(*keywords), type='.*'))
@@ -174,9 +172,8 @@ with st.sidebar:
                 else:
                     help = None
 
-                if style == 'camelCase':
-                    name = element
-                else:
+                name = element
+                if style == 'snake_case' and groupName != 'flags':
                     name = camel2snake(element)
 
                 # Now that we made the buttons, while we're here, also make the snippets
@@ -194,15 +191,24 @@ with st.sidebar:
                 if tutorial and help is not None:
                     st.caption(help)
 
-
     with st.expander('Operators'):
         st.markdown(texts['operators'])
 
 # ─── MAIN PAGE ──────────────────────────────────────────────────────────────────
 _tutorial('main')
-st.markdown('Enter EZRegex pattern:')
+left, right = st.columns([.85, .2])
+right.button('Reload')
+# replace = left.checkbox('Replacement Mode', key='replace_mode', value=tutorial)
+mode = left.radio('Mode',
+    ['Search', 'Replace', 'Split'],
+    captions=texts['modeCaptions'] if tutorial else None,
+    horizontal=not tutorial,
+    index=0 if not tutorial else 1,
+    key='mode',
+)
 
 # ─── PATTERN BOX ────────────────────────────────────────────────────────────────
+st.markdown('Enter EZRegex pattern:')
 ezre = st.session_state['ezre']['text'] if 'ezre' in st.session_state else ''
 new = st.session_state.get('ezre_toAdd')
 if new is not None:
@@ -236,23 +242,12 @@ string = placeholder.text_area(
 _tutorial('string')
 
 st.markdown('Enter replacement EZRegex:')
-replacementPlaceholder = st.empty()
-tutorialReplacementPlaceholder = st.empty()
-left, right = st.columns([.85, .15])
-right.button('Reload')
-# replace = left.checkbox('Replacement Mode', key='replace_mode', value=tutorial)
-mode = left.radio('Mode',
-    ['Search', 'Replace', 'Split'],
-    captions=texts['modeCaptions'] if tutorial else None,
-    horizontal=not tutorial,
-    index=0 if not tutorial else 1,
-    key='mode',
-)
-print('-'*100)
-print(f'mode: {st.session_state.mode}')
+# replacementPlaceholder = st.empty()
+# tutorialReplacementPlaceholder = st.empty()
 
 # ─── REPLACEMENT PATTERN BOX ────────────────────────────────────────────────────
-with replacementPlaceholder:
+# with replacementPlaceholder:
+if mode == 'Replace':
     replacement = st.session_state['replacement']['text'] if 'replacement' in st.session_state else ''
     new = st.session_state.get('replacement_toAdd')
     if new is not None:
@@ -273,13 +268,15 @@ with replacementPlaceholder:
 
     st.session_state['replacement_prevID'] = resp['id']
 
-print(f'mode: {mode}')
+    _tutorial('replaceBox')
+
+# print(f'mode: {mode}')
 # If it's in the wrong mode, erase the box we just made.
-if mode != 'Replace':
-    print('erasing')
-    replacementPlaceholder.empty()
-elif tutorial:
-    tutorialReplacementPlaceholder.caption(texts['tutorial']['replaceBox'])
+# if mode != 'Replace':
+    # print('erasing')
+    # replacementPlaceholder.empty()
+# elif tutorial:
+    # tutorialReplacementPlaceholder.caption(texts['tutorial']['replaceBox'])
 
 # ezre = st.session_state.ezre['text']
 # replacement = st.session_state.replacement['text']
@@ -340,7 +337,7 @@ if len(ezre):
                 # Apparently, there's no way to escape a $ that I can find
                 latex = f'{escape(match["match"]["string"])} ({match["match"]["start"]}:{match["match"]["end"]})'
             else:
-                latex = f'$\\text{{\color{{{match["match"]["color"]}}}{escape(match["match"]["string"])}}} \\textit{{({match["match"]["start"]}:{match["match"]["end"]})}}$'
+                latex = f'$\\text{{\\color{{{match["match"]["color"]}}}{escape(match["match"]["string"])}}} \\textit{{({match["match"]["start"]}:{match["match"]["end"]})}}$'
             fold = st.expander(latex, (len(json['matches']) == 1) and mode != 'Replace')
 
             if not len(match['unnamedGroups']) and not len(match['namedGroups']):
