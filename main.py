@@ -241,13 +241,13 @@ string = placeholder.text_area(
 )
 _tutorial('string')
 
-st.markdown('Enter replacement EZRegex:')
 # replacementPlaceholder = st.empty()
 # tutorialReplacementPlaceholder = st.empty()
 
 # ─── REPLACEMENT PATTERN BOX ────────────────────────────────────────────────────
 # with replacementPlaceholder:
 if mode == 'Replace':
+    st.markdown('Enter replacement EZRegex:')
     replacement = st.session_state['replacement']['text'] if 'replacement' in st.session_state else ''
     new = st.session_state.get('replacement_toAdd')
     if new is not None:
