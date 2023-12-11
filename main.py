@@ -134,7 +134,7 @@ def camel2snake(camel):
 def snippify(func:str):
     element = globals()[func]
     # If this is true, it's a basic singleton without parameters
-    if type(element) is EZRegexMember:
+    if type(element) is EZRegex:
         return func
     else:
         sig = inspect.signature(element)
@@ -181,7 +181,7 @@ with st.sidebar:
                 snippets += snip
 
                 actual = globals()[element]
-                if type(actual) is not EZRegexMember:
+                if type(actual) is not EZRegex:
                     sig = inspect.signature(actual)
                     name += '(' + ', '.join(p.name for p in sig.parameters.values()) + ')'
 

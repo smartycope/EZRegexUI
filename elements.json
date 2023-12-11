@@ -176,11 +176,11 @@
         "description": null,
         "elements":[
             ["raw(regex)", null,
-                "If you already have some regular regex written, and you want to incorperate it, this will allow you to include it without sanatizing all the backslaches and such, which all the other EZRegexMembers do automatically."]
+                "If you already have some regular regex written, and you want to incorperate it, this will allow you to include it without sanatizing all the backslaches and such, which all the other EZRegexs do automatically."]
         ]
     },
     "Replacement":{
-        "description": "In the intrest of \"I don't want to think about any syntax at all\", I have included replace members. Do note that they are not interoperable with the other EZRegexMembers, and can only be used with other strings and each other.",
+        "description": "In the intrest of \"I don't want to think about any syntax at all\", I have included replace members. Do note that they are not interoperable with the other EZRegexs, and can only be used with other strings and each other.",
         "elements":[
             ["replaceGroup(num_or_name)", "replace_group(num_or_name)",
                 "Puts in its place the group specified, either by group number (for unnamed groups) or group name (for named groups). Named groups are also counted by number, I'm pretty sure. Groups are numbered starting from 1."],
