@@ -143,14 +143,15 @@ def snippify(func:str):
 
 # ─── Page ───────────────────────────────────────────────────────────────────────
 # The actual page
-# left, right = st.columns([.09, 1])
-# left.image(logo, width=103)
+# left, right = st.columns([.5, 1])
+# right.image(logo, width=103)
 st.title('EZRegex')
 st.caption(f"Copeland Carter | version {er.__version__}")
 
 # ─── SIDEBAR ────────────────────────────────────────────────────────────────────
 # Add all the side bar elements
 with st.sidebar:
+    # st.image(logo)#, width=103)
     left, right = st.columns(2)
     style = left.radio('Style', ['camelCase', 'snake_case'], horizontal=True)
     right.markdown('')
@@ -216,10 +217,16 @@ if new is not None:
 if tutorial:
     ezre = texts['tutorial']['defaultPattern']
 
-snippetsRemove = ''
+with open('snippetsRemove.txt', 'r') as f:
+    snippetsRemove = f.read()
+# snippetsRemove = [
+#     {'name':'None'},
+# ]
+
 resp = code_editor(ezre,
     key='ezre',
     snippets=[snippets, snippetsRemove],
+    focus=True,
     **editorArgs
 )
 id = st.session_state.get('ezre_prevID')
@@ -232,8 +239,8 @@ st.session_state['ezre_prevID'] = resp['id']
 _tutorial('ezre')
 
 # ─── STRING INPUT BOX ───────────────────────────────────────────────────────────
-placeholder = st.empty()
-string = placeholder.text_area(
+# placeholder = st.empty()
+string = st.text_area(
     'Enter string to match:',
     key='string',
     placeholder=texts['stringPlaceholder'],
