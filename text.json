@@ -16,7 +16,7 @@
         "replaced": "This is the string you would get if you replaced all instances of the `pattern` in the `string` with the `replacement`.",
         "split": "This is all the parts you get if you split the given string in chunks of `pattern`. This includes stuff that doesn't match in between the stuff that does. For instance, if the string starts with a pattern that matches, the first index will be an empty string.",
         "sidebar": "These are all a bunch of elements that represent various levels of abstraction of Regular Expression elements. Use them to specify parts of a string. Hover over to see more info",
-        "defaultPattern": "# This already exists as a convenience pattern\now = optional(whitechunk)\n# The unary + operator works just like the matchMax() function.\n# See the operators section in the side bar for more\nlineStart + group(word) + ow + '=' + ow + namedGroup('value', +anything)",
+        "defaultPattern": "# This already exists as a convenience pattern\now = optional(whitechunk)\n# The unary + operator works just like the matchMax() function.\n# See the operators section in the side bar for more\nlineStart + group(word) + ow + '=' + ow + group(+anything, name='value')",
         "defaultString": "foo = 8 - 9\nbar='hello world!'",
         "defaultReplace": "# rgroup() is an alias of replaceGroup()\nreplaceGroup(1) + ': ' + rgroup('value')"
     },
