@@ -5,10 +5,10 @@
     "stringPlaceholder":"Leave empty to automatically generate an example of what it would match",
     "replacementHelp":"This accepts valid Python syntax. The last line must be an EZRegex expression",
     "tutorial":{
-        "main": "Welcome to EZRegex!\n\nThis is a fancy frontend for the ezregex Python library.\nIt's is an abstraction on top of Regular Expressions. You don't need to know any of Regular Expressions to use this. It's also not limited to Python! You can copy the regex provided below, and it should work with any language which supports Regular Expressions. All the functions available are provided on the side with buttons, which you can click to add to the pattern. They're also available as snippets.",
+        "main": "Welcome to EZRegex!\n\nThis is a fancy frontend for the ezregex Python library, which is an abstraction on top of Regular Expressions. You don't need to know any Regular Expression syntax to use this.\n\nIt's also not limited to Python! You can copy the regex provided below, and it should work with most languages which support Regular Expressions (additional dialects are coming soon). All the elements available are provided on the side with buttons, which you can click to add to the pattern. They're also available as snippets, so you can write patterns directly.",
         "ezre": "This accepts valid Python syntax. The last line must be an EZRegex expression.",
         "string": "Put text here you want to try to match the pattern against. Or you can leave it empty to auto-generate some text which would match the pattern",
-        "replaceBox": "Here, put text you want to replace (uses re.sub()). Use the replacement section to add groups",
+        "replaceBox": "Here, put text you want to replace (uses re.sub()). See the replacement section (on the sidebar, at the bottom) for adding groups",
         "matching": "Here you can see your string (provided, or generated). Text color denotes induvidual matches, and background color indicates seperate matched named and unnamed groups.",
         "regex": "This is the regex which gets generated when you compile the EZRegex string. You can copy this into your program if you don't want to use the ezregex python package directly.",
         "groups": "These are the named and unnamed groups found in the match, also color coded and indexed. Remember that group #0 is always the entire match",
@@ -24,8 +24,8 @@
         "textBoxes": "The Code Editor is better if you're writing expressions yourself. It can be a little buggy, but works good for the most part.\n\nThe Text Editor is the built-in streamlit text box, which works a little better with the buttons, but doesn't have syntax highlighting or snippets."
     },
     "modeCaptions":[
-        "Find all matches in the search string",
-        "Replace each instance of the pattern in the search string with the replacement pattern",
+        "Find all sequences in the search string which match the pattern",
+        "Replace each sequence of the pattern in the search string with the replacement pattern",
         "Split the search string up into sections of the pattern"
     ]
 }

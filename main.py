@@ -66,7 +66,7 @@ if "_text_editor" not in st.session_state:
 # left, right = st.columns([.5, 1])
 # st.image(logo, width=103)
 st.title('EZRegex')
-st.caption(f"Copeland Carter | version {er.__version__}")
+st.caption(f"Copeland Carter | v{er.__version__}")
 
 # Yes, the sidebar returns the snippets. It's only because it's already looping
 # through all the EZRegex elements to make all the sidebar buttons, so while we're
