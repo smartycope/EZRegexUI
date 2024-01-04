@@ -35,7 +35,7 @@ st.set_page_config(
     }
 )
 
-default_editor = 'Text Editor'
+default_editor = 'Code Editor'
 
 if 'replacement' not in st.session_state:
     if st.experimental_get_query_params().get('editor') is None:
