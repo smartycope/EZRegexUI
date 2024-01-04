@@ -35,22 +35,45 @@ st.set_page_config(
     }
 )
 
+default_editor = 'Text Editor'
+
+if 'replacement' not in st.session_state:
+    if st.experimental_get_query_params().get('editor') is None:
+
+        st.session_state.ezre = {'text':'', 'id':-1}  if default_editor == 'Code Editor' else ''
+    elif st.experimental_get_query_params().get('editor')[0] != 'text':
+        st.session_state.ezre = {'text':'', 'id':-1}
+    else:
+        st.session_state.ezre = ''
+
+
 # Apparently this has to be here?
 # Ensure there's *something* there so the code works
 if "ezre" not in st.session_state:
-    st.session_state.ezre = {'text':'', 'id':-1}
+    if st.experimental_get_query_params().get('editor') is None:
+        st.session_state.ezre = {'text':'', 'id':-1}  if default_editor == 'Code Editor' else ''
+    elif st.experimental_get_query_params().get('editor')[0] != 'text':
+        st.session_state.ezre = {'text':'', 'id':-1}
+    else:
+        st.session_state.ezre = ''
 
+if "_text_editor" not in st.session_state:
+    print(st.experimental_get_query_params())
+    st.session_state['_text_editor'] = default_editor if (editor := st.experimental_get_query_params().get('editor')[0]) is None else (editor.capitalize() + ' Editor')
+
+# print('~'*30,)
+# print(st.session_state)
 
 # ─── Page ───────────────────────────────────────────────────────────────────────
 # left, right = st.columns([.5, 1])
-# right.image(logo, width=103)
+# st.image(logo, width=103)
 st.title('EZRegex')
 st.caption(f"Copeland Carter | version {er.__version__}")
 
 # Yes, the sidebar returns the snippets. It's only because it's already looping
 # through all the EZRegex elements to make all the sidebar buttons, so while we're
 # looping, we might as well piggyback and collect all the snippets too.
-snippets = sidebar(texts['operators'])
+snippets = sidebar(texts['operators'], texts['settings'])
 
 _tutorial('main')
 left, right = st.columns([.85, .2])
@@ -64,7 +87,6 @@ mode = left.radio('Mode',
 )
 
 # ─── PATTERN BOX ────────────────────────────────────────────────────────────────
-st.markdown('Enter EZRegex pattern:')
 pattern = patternBox(snippets, texts['tutorial']['defaultPattern'])
 _tutorial('ezre')
 
@@ -79,7 +101,6 @@ _tutorial('string')
 
 # ─── REPLACEMENT PATTERN BOX ────────────────────────────────────────────────────
 if mode == 'Replace':
-    st.markdown('Enter replacement EZRegex:')
     replacement = replaceBox(snippets, texts['tutorial']['defaultReplace'])
     _tutorial('replaceBox')
 
@@ -87,11 +108,18 @@ if mode == 'Replace':
 # Generate all the match stuff, if we can
 if len(pattern):
     if (var := runCode(pattern)) is not None:
+        # If it's just a string, make it an EZRegex type
+        if type(var) is str:
+            var = raw(var)
+
+        # If there's nothing in the box of stuff to match, invert to genenerate something that would match
         if not len(string):
             try:
                 string = var.invert()
             except:
                 st.error("Can't invert that expression. Try providing a string to match instead.")
+
+        # Get all the details
         data = var._matchJSON(string)
 
         st.divider()
@@ -109,7 +137,7 @@ if len(pattern):
         st.markdown('### Matches:')
         _tutorial('matches')
 
-        showMatches(data, texts['tutorial']['groups'])
+        showMatches(data, mode, texts['tutorial']['groups'])
 
         # The additional Replace and Split parts at the bottom
         if mode == 'Replace':

@@ -80,7 +80,7 @@ def runCode(pattern):
 
     return var if successful else None
 
-def showMatches(data, groupTutorialText):
+def showMatches(data, mode, groupTutorialText):
     for match in data['matches']:
         # st.markdown(f"""
             # <style>

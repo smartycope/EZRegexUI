@@ -9,6 +9,8 @@ import inspect
 from src.functions import snippify, camel2snake
 # from src.functions import tutorial as _tutorial
 
+logo = './favicon.png'
+
 # All the text is stored in here to make the code look better
 with open('text.json', 'r') as f:
     texts = _json.load(f)
@@ -23,32 +25,64 @@ def addPart(input, _replace=False):
         st.session_state['replace_mode'] = True
         replace = True
         get = 'replacement'
-    cur = st.session_state[get]['text']
 
+    # Actually get it from the session state
+    if st.session_state['_text_editor'] == 'Code Editor':
+        cur = st.session_state[get]['text']
+    else:
+        cur = st.session_state[get]
+
+    # Figure out what needs to be added exactly
     if cur is None or not len(cur):
         newPart = input
     elif re.search((optional(' ') + anyof('+', '<<', '>>', '*') + optional(' ') + stringEnd).str(), cur) is not None:
         newPart = input
-    # This is really cool, but doesn't really work anymore
-    # elif (m := re.search((er.group('()') + ow + stringEnd).str(), cur)) is not None:
-        # newPart = cur[:(-len(m.group())) + 1] + input + ')'
+    # This doesn't really work with the Code editor
+    elif st.session_state['_text_editor'] == 'Text Editor' and (m := re.search((er.group('()') + ow + stringEnd).str(), cur)) is not None:
+        # We can do this here because this if block is only used if we're using the text editor
+        st.session_state.ezre = st.session_state.ezre[:-1]
+        newPart = cur[(-len(m.group()))+1:(-len(m.group()))+2] + input + ')'
     else:
         newPart = ' + ' + input
 
-    if get+'_toAdd' in st.session_state:
-        st.session_state[get+'_toAdd'] += newPart
+    # Set it to be added
+    if st.session_state['_text_editor'] == 'Code Editor':
+        if get+'_toAdd' in st.session_state:
+            st.session_state[get+'_toAdd'] += newPart
+        else:
+            st.session_state[get+'_toAdd'] = newPart
     else:
-        st.session_state[get+'_toAdd'] = newPart
+        st.session_state.ezre += newPart
 
 def _tutorial(key):
     if st.session_state.tutorial:
         st.caption(texts['tutorial'][key])
 
+def resolve_current_text():
+    """ If we're switching between text box types, make sure the current text isn't lost """
+    if st.session_state['_text_editor'] == 'Code Editor':
+        # We're switching from text editor to Code editor
+        st.session_state.ezre = {'text':st.session_state.ezre, 'id':-1}
+        st.session_state.replacement = {'text':st.session_state.replacement, 'id':-1}
+    else:
+        # We're switching from Code editor to text editor
+        st.session_state.ezre = st.session_state.ezre['text']
+        # If we haven't changed anything since we forcefully made it a string, don't change it again
+        if 'replacement' in st.session_state and type(st.session_state.replacement) is dict:
+            st.session_state.replacement = st.session_state.replacement['text']
+        # Causes niche errors if we don't do this
+        if 'replacement_toAdd' in st.session_state:
+            del st.session_state['replacement_toAdd']
 
-def sidebar(operatorText):
+    params = st.experimental_get_query_params()
+    params['editor'][0] = st.session_state['_text_editor'].split(' ')[0].lower()
+    st.experimental_set_query_params(**params)
+
+
+def sidebar(operatorText, settingsTexts):
     snippets = ''
     with st.sidebar:
-        # st.image(logo)#, width=103)
+        st.image(logo, )
         left, right = st.columns(2)
         style = left.radio('Style', ['camelCase', 'snake_case'], horizontal=True)
         right.markdown('')
@@ -58,6 +92,7 @@ def sidebar(operatorText):
         _tutorial('sidebar')
 
         s = ''
+        # Add all the buttons
         for groupName, elements in er.__groups__.items():
             with st.expander(groupName.title()):
                 # Add the optional group description
@@ -89,7 +124,12 @@ def sidebar(operatorText):
                     if tutorial and help is not None:
                         st.caption(help)
 
+        # Add the operators section
         with st.expander('Operators'):
             st.markdown(operatorText)
+
+        # Add a settings section
+        with st.expander('Settings'):
+            st.radio('Text Boxes', ('Code Editor', 'Text Editor'), help=settingsTexts['textBoxes'], key='_text_editor', on_change=resolve_current_text)
 
     return snippets

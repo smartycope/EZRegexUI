@@ -26,24 +26,31 @@ if "replacement" not in st.session_state:
 
 
 def replaceBox(snippets, defaultText):
-    replacement = st.session_state['replacement']['text'] if 'replacement' in st.session_state else ''
-    new = st.session_state.get('replacement_toAdd')
-    if new is not None:
-        replacement += new
-    if st.session_state.tutorial:
-        replacement = defaultText
+    name = 'Enter replacement EZRegex:'
+    if st.session_state['_text_editor'] == 'Code Editor':
+        st.markdown(name)
 
-    resp = code_editor(replacement,
-        key='replacement',
-        snippets=[replacement_snippets, snippetsRemove],
-        **editorArgs
-    )
-    id = st.session_state.get('replacement_prevID')
-    if id is not None and id != resp['id']:
-        st.session_state['replacement_toAdd'] = ''
+        replacement = st.session_state['replacement']['text'] if 'replacement' in st.session_state else ''
+        new = st.session_state.get('replacement_toAdd')
+        if new is not None:
+            replacement += new
+        if st.session_state.tutorial:
+            replacement = defaultText
+
+        resp = code_editor(replacement,
+            key='replacement',
+            snippets=[replacement_snippets, snippetsRemove],
+            **editorArgs
+        )
+        id = st.session_state.get('replacement_prevID')
+        if id is not None and id != resp['id']:
+            st.session_state['replacement_toAdd'] = ''
+            st.session_state['replacement_prevID'] = resp['id']
+            st.rerun()
+
         st.session_state['replacement_prevID'] = resp['id']
-        st.rerun()
 
-    st.session_state['replacement_prevID'] = resp['id']
+    else:
+        replacement = st.text_area(name, defaultText if st.session_state.tutorial else "", key='replacement')
 
     return replacement
