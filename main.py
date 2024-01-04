@@ -58,7 +58,6 @@ if "ezre" not in st.session_state:
         st.session_state.ezre = ''
 
 if "_text_editor" not in st.session_state:
-    print(st.experimental_get_query_params())
     st.session_state['_text_editor'] = default_editor if (editor := st.experimental_get_query_params().get('editor')[0]) is None else (editor.capitalize() + ' Editor')
 
 # print('~'*30,)
