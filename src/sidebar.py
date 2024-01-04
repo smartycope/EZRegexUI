@@ -15,6 +15,17 @@ logo = './favicon.png'
 with open('text.json', 'r') as f:
     texts = _json.load(f)
 
+# TODO: This section is copied from main.py. It should be in either one or the other
+default_editor = 'Code Editor'
+
+if 'replacement' not in st.session_state:
+    if st.experimental_get_query_params().get('editor') is None:
+        st.session_state.ezre = {'text':'', 'id':-1}  if default_editor == 'Code Editor' else ''
+    elif st.experimental_get_query_params().get('editor') == 'text' or st.experimental_get_query_params().get('editor')[0] == 'text':
+        st.session_state.ezre = ''
+    else:
+        st.session_state.ezre = {'text':'', 'id':-1}
+
 # Function for adding side bar elements to ezre when they're clicked
 def addPart(input, _replace=False):
     global replace, replacement
@@ -60,22 +71,32 @@ def _tutorial(key):
 
 def resolve_current_text():
     """ If we're switching between text box types, make sure the current text isn't lost """
+    replacement = '' if (r := st.session_state.get('replacement')) else r
     if st.session_state['_text_editor'] == 'Code Editor':
         # We're switching from text editor to Code editor
         st.session_state.ezre = {'text':st.session_state.ezre, 'id':-1}
-        st.session_state.replacement = {'text':st.session_state.replacement, 'id':-1}
+        st.session_state.replacement = {'text':replacement, 'id':-1}
     else:
         # We're switching from Code editor to text editor
         st.session_state.ezre = st.session_state.ezre['text']
         # If we haven't changed anything since we forcefully made it a string, don't change it again
-        if 'replacement' in st.session_state and type(st.session_state.replacement) is dict:
-            st.session_state.replacement = st.session_state.replacement['text']
+        if 'replacement' in st.session_state and type(replacement) is dict:
+            st.session_state.replacement = replacement['text']
         # Causes niche errors if we don't do this
         if 'replacement_toAdd' in st.session_state:
             del st.session_state['replacement_toAdd']
 
     params = st.experimental_get_query_params()
-    params['editor'][0] = st.session_state['_text_editor'].split(' ')[0].lower()
+    # print(params)
+    # TODO: This is very inelegant. Fix this.
+    if 'editor' not in params:
+        params['editor'] = [st.session_state['_text_editor'].split(' ')[0].lower()]
+    else:
+        try:
+            params['editor'][0] = st.session_state['_text_editor'].split(' ')[0].lower()
+        except IndexError:
+            params['editor'] = [st.session_state['_text_editor'].split(' ')[0].lower()]
+
     st.experimental_set_query_params(**params)
 
 
