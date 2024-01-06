@@ -3,8 +3,6 @@ import ezregex as er
 from ezregex import *
 import streamlit as st
 import json as _json
-import builtins
-from code_editor import code_editor
 import inspect
 from src.functions import snippify, camel2snake
 # from src.functions import tutorial as _tutorial

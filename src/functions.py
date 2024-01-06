@@ -1,11 +1,8 @@
 import streamlit as st
-import json
 import re
 import ezregex as er
 from ezregex import *
-import streamlit as st
 import builtins
-from code_editor import code_editor
 import inspect
 
 # Remove these when I get to version 1.6.1

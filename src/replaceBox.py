@@ -1,11 +1,5 @@
-import re
-import ezregex as er
-from ezregex import *
 import streamlit as st
-import json as _json
-import builtins
 from code_editor import code_editor
-import inspect
 
 editorArgs = dict(
     lang='python',

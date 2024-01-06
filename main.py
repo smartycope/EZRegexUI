@@ -3,9 +3,6 @@ import ezregex as er
 from ezregex import *
 import streamlit as st
 import json as _json
-import builtins
-from code_editor import code_editor
-import inspect
 from src.functions import *
 from src.patternBox import *
 from src.replaceBox import *
@@ -35,7 +32,7 @@ st.set_page_config(
     }
 )
 
-default_editor = 'Code Editor'
+default_editor = 'Text Editor'
 
 if 'replacement' not in st.session_state:
     if st.experimental_get_query_params().get('editor') is None:
