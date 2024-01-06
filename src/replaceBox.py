@@ -15,8 +15,14 @@ with open('snippetsRemove.txt', 'r') as f:
     snippetsRemove = f.read()
 
 # Ensure there's *something* there so the code works
-if "replacement" not in st.session_state:
-    st.session_state.replacement = {'text':'', 'id':-1}
+if 'replacement' not in st.session_state:
+    if st.experimental_get_query_params().get('editor') is None:
+        st.session_state.ezre = {'text':'', 'id':-1}  if st.session_state.default_editor == 'Code Editor' else ''
+    elif st.experimental_get_query_params().get('editor') == 'text' or st.experimental_get_query_params().get('editor')[0] == 'text':
+        st.session_state.ezre = ''
+    else:
+        st.session_state.ezre = {'text':'', 'id':-1}
+
 
 
 def replaceBox(snippets, defaultText):
@@ -46,5 +52,9 @@ def replaceBox(snippets, defaultText):
 
     else:
         replacement = st.text_area(name, defaultText if st.session_state.tutorial else "", key='replacement')
+
+    # TODO: remove this, this is a backup saftey measure
+    if type(replacement) is dict:
+        replacement = replacement['text']
 
     return replacement

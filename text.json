@@ -6,7 +6,7 @@
     "replacementHelp":"This accepts valid Python syntax. The last line must be an EZRegex expression",
     "tutorial":{
         "main": "Welcome to EZRegex!\n\nThis is a fancy frontend for the ezregex Python library, which is an abstraction on top of Regular Expressions. You don't need to know any Regular Expression syntax to use this.\n\nIt's also not limited to Python! You can copy the regex provided below, and it should work with most languages which support Regular Expressions (additional dialects are coming soon). All the elements available are provided on the side with buttons, which you can click to add to the pattern. They're also available as snippets, so you can write patterns directly.",
-        "ezre": "This accepts valid Python syntax. The last line must be an EZRegex expression.",
+        "ezre": "This accepts valid Python syntax. The last line must be an EZRegex expression. Note that if you're using the Code Editor, you have to hit Ctrl+Enter before using one of the sidebar buttons, otherwise your edits will be overwritten",
         "string": "Put text here you want to try to match the pattern against. Or you can leave it empty to auto-generate some text which would match the pattern",
         "replaceBox": "Here, put text you want to replace (uses re.sub()). See the replacement section (on the sidebar, at the bottom) for adding groups",
         "matching": "Here you can see your string (provided, or generated). Text color denotes induvidual matches, and background color indicates seperate matched named and unnamed groups.",

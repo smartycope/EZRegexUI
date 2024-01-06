@@ -32,29 +32,29 @@ st.set_page_config(
     }
 )
 
-default_editor = 'Text Editor'
+st.session_state['default_editor'] = 'Code Editor'
 
 if 'replacement' not in st.session_state:
     if st.experimental_get_query_params().get('editor') is None:
-        st.session_state.ezre = {'text':'', 'id':-1}  if default_editor == 'Code Editor' else ''
+        st.session_state.replacement = {'text':'', 'id':-1}  if st.session_state.default_editor == 'Code Editor' else ''
     elif st.experimental_get_query_params().get('editor') == 'text' or st.experimental_get_query_params().get('editor')[0] == 'text':
-        st.session_state.ezre = ''
+        st.session_state.replacement = ''
     else:
-        st.session_state.ezre = {'text':'', 'id':-1}
+        st.session_state.replacement = {'text':'', 'id':-1}
 
 
 # Apparently this has to be here?
 # Ensure there's *something* there so the code works
 if "ezre" not in st.session_state:
     if st.experimental_get_query_params().get('editor') is None:
-        st.session_state.ezre = {'text':'', 'id':-1}  if default_editor == 'Code Editor' else ''
+        st.session_state.ezre = {'text':'', 'id':-1}  if st.session_state.default_editor == 'Code Editor' else ''
     elif st.experimental_get_query_params().get('editor') == 'text' or st.experimental_get_query_params().get('editor')[0] == 'text':
         st.session_state.ezre = ''
     else:
         st.session_state.ezre = {'text':'', 'id':-1}
 
 if "_text_editor" not in st.session_state:
-    st.session_state['_text_editor'] = default_editor if (editor := st.experimental_get_query_params().get('editor')) is None else (editor[0].capitalize() + ' Editor')
+    st.session_state['_text_editor'] = st.session_state.default_editor if (editor := st.experimental_get_query_params().get('editor')) is None else (editor[0].capitalize() + ' Editor')
 
 # print('~'*30,)
 # print(st.session_state)

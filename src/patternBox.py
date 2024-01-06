@@ -35,6 +35,9 @@ def patternBox(snippets, defaultText):
             **editorArgs
         )
         id = st.session_state.get('ezre_prevID')
+        print(resp)
+        print(new)
+        print(ezre)
         if id is not None and id != resp['id']:
             st.session_state['ezre_toAdd'] = ''
             st.session_state['ezre_prevID'] = resp['id']
@@ -43,5 +46,9 @@ def patternBox(snippets, defaultText):
         st.session_state['ezre_prevID'] = resp['id']
     else:
         ezre = st.text_area(name, value=defaultText if st.session_state.tutorial else "", key='ezre')
+
+    # TODO: remove this, this is a backup saftey measure
+    if type(ezre) is dict:
+        ezre = ezre['text']
 
     return ezre
