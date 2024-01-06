@@ -15,14 +15,13 @@ with open('text.json', 'r') as f:
 
 # TODO: This section is copied from main.py. It should be in either one or the other
 default_editor = 'Code Editor'
-
 if 'replacement' not in st.session_state:
     if st.experimental_get_query_params().get('editor') is None:
-        st.session_state.ezre = {'text':'', 'id':-1}  if default_editor == 'Code Editor' else ''
+        st.session_state.replacement = {'text':'', 'id':-1} if default_editor == 'Code Editor' else ''
     elif st.experimental_get_query_params().get('editor') == 'text' or st.experimental_get_query_params().get('editor')[0] == 'text':
-        st.session_state.ezre = ''
+        st.session_state.replacement = ''
     else:
-        st.session_state.ezre = {'text':'', 'id':-1}
+        st.session_state.replacement = {'text':'', 'id':-1}
 
 # Function for adding side bar elements to ezre when they're clicked
 def addPart(input, _replace=False):
