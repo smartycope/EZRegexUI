@@ -86,13 +86,18 @@ pattern = patternBox(snippets, texts['tutorial']['defaultPattern'])
 _tutorial('ezre')
 
 # ─── STRING INPUT BOX ───────────────────────────────────────────────────────────
+prevString = st.session_state.get('string') or ''
+print('prevString:', prevString)
 string = st.text_area(
     'Enter string to match:',
     key='string',
     placeholder=texts['stringPlaceholder'],
-    value=texts['tutorial']['defaultString'] if st.session_state.tutorial else ''
+    value=texts['tutorial']['defaultString'] if st.session_state.tutorial else prevString
 )
 _tutorial('string')
+# TODO: this is a bug fix. Fix the root of the problem instead of the symptom.
+# if string != prevString:
+#     st.rerun()
 
 # ─── REPLACEMENT PATTERN BOX ────────────────────────────────────────────────────
 if mode == 'Replace':
