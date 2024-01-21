@@ -19,11 +19,11 @@ with open('snippetsRemove.txt', 'r') as f:
 default_editor = 'Code Editor'
 if 'replacement' not in st.session_state:
     if st.experimental_get_query_params().get('editor') is None:
-        st.session_state.ezre = {'text':'', 'id':-1}  if default_editor == 'Code Editor' else ''
+        st.session_state.pattern = {'text':'', 'id':-1}  if default_editor == 'Code Editor' else ''
     elif st.experimental_get_query_params().get('editor') == 'text' or st.experimental_get_query_params().get('editor')[0] == 'text':
-        st.session_state.ezre = ''
+        st.session_state.pattern = ''
     else:
-        st.session_state.ezre = {'text':'', 'id':-1}
+        st.session_state.pattern = {'text':'', 'id':-1}
 
 
 
@@ -53,7 +53,7 @@ def replaceBox(snippets, defaultText):
         st.session_state['replacement_prevID'] = resp['id']
 
     else:
-        replacement = st.text_area(name, defaultText if st.session_state.tutorial else "", key='replacement')
+        replacement = st.text_area(name, defaultText if st.session_state.tutorial else (st.session_state.get('replacement') or ""), key='replacement')
 
     # TODO: remove this, this is a backup saftey measure
     if type(replacement) is dict:

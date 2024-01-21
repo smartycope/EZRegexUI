@@ -10,7 +10,6 @@ from src.sidebar import *
 
 # ─── SETUP ──────────────────────────────────────────────────────────────────────
 # print('-'*100)
-logo = './favicon.png'
 
 # All the text is stored in here to make the code look better
 with open('text.json', 'r') as f:
@@ -22,7 +21,7 @@ def _tutorial(key):
 
 st.set_page_config(
     page_title='EZRegex',
-    page_icon=logo,
+    page_icon='./favicon.png',
     initial_sidebar_state='expanded',
     layout='wide',
     menu_items={
@@ -34,24 +33,24 @@ st.set_page_config(
 
 st.session_state['default_editor'] = 'Code Editor'
 
+# Determine what the default 'replacement' value should be
 if 'replacement' not in st.session_state:
-    if st.experimental_get_query_params().get('editor') is None:
-        st.session_state.replacement = {'text':'', 'id':-1}  if st.session_state.default_editor == 'Code Editor' else ''
+    if 'editor' not in st.experimental_get_query_params():
+        st.session_state['replacement'] = {'text':'', 'id':-1}  if st.session_state.default_editor == 'Code Editor' else ''
     elif st.experimental_get_query_params().get('editor') == 'text' or st.experimental_get_query_params().get('editor')[0] == 'text':
-        st.session_state.replacement = ''
+        st.session_state['replacement'] = ''
     else:
-        st.session_state.replacement = {'text':'', 'id':-1}
+        st.session_state['replacement'] = {'text':'', 'id':-1}
 
 
-# Apparently this has to be here?
-# Ensure there's *something* there so the code works
-if "ezre" not in st.session_state:
+# Determine what the default 'pattern' value should be
+if "patter" not in st.session_state:
     if st.experimental_get_query_params().get('editor') is None:
-        st.session_state.ezre = {'text':'', 'id':-1}  if st.session_state.default_editor == 'Code Editor' else ''
+        st.session_state['pattern'] = {'text':'', 'id':-1}  if st.session_state.default_editor == 'Code Editor' else ''
     elif st.experimental_get_query_params().get('editor') == 'text' or st.experimental_get_query_params().get('editor')[0] == 'text':
-        st.session_state.ezre = ''
+        st.session_state['pattern'] = ''
     else:
-        st.session_state.ezre = {'text':'', 'id':-1}
+        st.session_state['pattern'] = {'text':'', 'id':-1}
 
 if "_text_editor" not in st.session_state:
     st.session_state['_text_editor'] = st.session_state.default_editor if (editor := st.experimental_get_query_params().get('editor')) is None else (editor[0].capitalize() + ' Editor')
@@ -83,7 +82,7 @@ mode = left.radio('Mode',
 
 # ─── PATTERN BOX ────────────────────────────────────────────────────────────────
 pattern = patternBox(snippets, texts['tutorial']['defaultPattern'])
-_tutorial('ezre')
+_tutorial('patter')
 
 # ─── STRING INPUT BOX ───────────────────────────────────────────────────────────
 string = st.text_area(

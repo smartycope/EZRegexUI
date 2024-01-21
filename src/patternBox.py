@@ -1,5 +1,5 @@
-import streamlit as st
 from code_editor import code_editor
+import streamlit as st
 
 editorArgs = dict(
     lang='python',
@@ -17,38 +17,38 @@ def patternBox(snippets, defaultText):
     name = 'Enter EZRegex pattern:'
     if st.session_state['_text_editor'] == 'Code Editor':
         st.markdown(name)
-        ezre = st.session_state['ezre']['text'] if 'ezre' in st.session_state else ''
-        new = st.session_state.get('ezre_toAdd')
+        pattern = st.session_state['pattern']['text'] if 'pattern' in st.session_state else ''
+        new = st.session_state.get('pattern_toAdd')
         if new is not None:
-            ezre += new
+            pattern += new
         if st.session_state.tutorial:
-            ezre = defaultText
+            pattern = defaultText
 
         # snippetsRemove = [
         #     {'name':'None'},
         # ]
 
-        resp = code_editor(ezre,
-            key='ezre',
+        resp = code_editor(pattern,
+            key='pattern',
             snippets=[snippets, snippetsRemove],
             focus=True,
             **editorArgs
         )
-        id = st.session_state.get('ezre_prevID')
+        id = st.session_state.get('pattern_prevID')
         print(resp)
         print(new)
-        print(ezre)
+        print(pattern)
         if id is not None and id != resp['id']:
-            st.session_state['ezre_toAdd'] = ''
-            st.session_state['ezre_prevID'] = resp['id']
+            st.session_state['pattern_toAdd'] = ''
+            st.session_state['pattern_prevID'] = resp['id']
             st.rerun()
 
-        st.session_state['ezre_prevID'] = resp['id']
+        st.session_state['pattern_prevID'] = resp['id']
     else:
-        ezre = st.text_area(name, value=defaultText if st.session_state.tutorial else "", key='ezre')
+        pattern = st.text_area(name, value=defaultText if st.session_state.tutorial else "", key='pattern')
 
     # TODO: remove this, this is a backup saftey measure
-    if type(ezre) is dict:
-        ezre = ezre['text']
+    if type(pattern) is dict:
+        pattern = pattern['text']
 
-    return ezre
+    return pattern

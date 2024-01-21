@@ -7,8 +7,6 @@ import inspect
 from src.functions import snippify, camel2snake
 # from src.functions import tutorial as _tutorial
 
-logo = './favicon.png'
-
 # All the text is stored in here to make the code look better
 with open('text.json', 'r') as f:
     texts = _json.load(f)
@@ -23,12 +21,12 @@ if 'replacement' not in st.session_state:
     else:
         st.session_state.replacement = {'text':'', 'id':-1}
 
-# Function for adding side bar elements to ezre when they're clicked
+# Function for adding side bar elements to pattern when they're clicked
 def addPart(input, _replace=False):
     global replace, replacement
     # If there's parameters, remove them. They can reference the side panel.
     input = re.sub(str('(' + matchMax(anything + optional(er.group(comma))) + ')'), '()', input)
-    get = 'ezre'
+    get = 'pattern'
     if _replace:
         st.session_state['replace_mode'] = True
         replace = True
@@ -48,7 +46,7 @@ def addPart(input, _replace=False):
     # This doesn't really work with the Code editor
     elif st.session_state['_text_editor'] == 'Text Editor' and (m := re.search((er.group('()') + ow + stringEnd).str(), cur)) is not None:
         # We can do this here because this if block is only used if we're using the text editor
-        st.session_state.ezre = st.session_state.ezre[:-1]
+        st.session_state.pattern = st.session_state.pattern[:-1]
         newPart = cur[(-len(m.group()))+1:(-len(m.group()))+2] + input + ')'
     else:
         newPart = ' + ' + input
@@ -60,7 +58,7 @@ def addPart(input, _replace=False):
         else:
             st.session_state[get+'_toAdd'] = newPart
     else:
-        st.session_state.ezre += newPart
+        st.session_state.pattern += newPart
 
 def _tutorial(key):
     if st.session_state.tutorial:
@@ -71,11 +69,11 @@ def resolve_current_text():
     replacement = '' if (r := st.session_state.get('replacement')) else r
     if st.session_state['_text_editor'] == 'Code Editor':
         # We're switching from text editor to Code editor
-        st.session_state.ezre = {'text':st.session_state.ezre, 'id':-1}
+        st.session_state.pattern = {'text':st.session_state.pattern, 'id':-1}
         st.session_state.replacement = {'text':replacement, 'id':-1}
     else:
         # We're switching from Code editor to text editor
-        st.session_state.ezre = st.session_state.ezre['text']
+        st.session_state.pattern = st.session_state.pattern['text']
         # If we haven't changed anything since we forcefully made it a string, don't change it again
         if 'replacement' in st.session_state and type(replacement) is dict:
             st.session_state.replacement = replacement['text']
@@ -100,9 +98,9 @@ def resolve_current_text():
 def sidebar(operatorText, settingsTexts):
     snippets = ''
     with st.sidebar:
-        st.image(logo, )
+        st.image('./favicon.png')
         left, right = st.columns(2)
-        style = left.radio('Style', ['camelCase', 'snake_case'], horizontal=True)
+        style = left.radio('Style', ['camelCase', 'snake_case'], horizontal=True, index=1)
         right.markdown('')
         tutorial = right.checkbox('Walkthrough', key='tutorial')
 
