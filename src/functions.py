@@ -4,7 +4,7 @@ import ezregex as er
 from ezregex import *
 import builtins
 import inspect
-
+from rich import print
 # Remove these when I get to version 1.6.1
 ifFollowedBy = if_followed_by = ifProcededBy
 if_exists = ifExists
@@ -80,6 +80,7 @@ def runCode(pattern):
 
 def showMatches(data, mode, groupTutorialText):
     for match in data['matches']:
+        # print(match)
         # st.markdown(f"""
             # <style>
             # div[data-testid="stExpander"] div[role="button"] p {{
@@ -98,7 +99,7 @@ def showMatches(data, mode, groupTutorialText):
 
         if not len(match['unnamedGroups']) and not len(match['namedGroups']):
             fold.markdown('No groups captured')
-            break
+            continue
 
         if st.session_state.tutorial:
             fold.caption(groupTutorialText)
