@@ -3,11 +3,5 @@ Make the buttons add at the cursor index, not at the end (or an option to)
 Option for which method of inverting we use
 Add a run button in the pattern box for mobile
 Penultimate lines ending in \ will break
-Add a code box holding the replacement regex as well
-Replacement box just disappears after you submit the ezre pattern
-add settings for inverting
-I think latex breaks on underscores
 Remove snippets
-add icon somewhere on page
 Somehow add a button which generates n number of example matches
-Add some sort of not found box if seach fails

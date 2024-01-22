@@ -7,7 +7,8 @@ from Cope.streamlit import ss
 
 # ─── SETUP ──────────────────────────────────────────────────────────────────────
 # Ensures that all the defaults are properly loaded
-ss.setup(
+# TODO: add query params
+ss.setup(# '_pattern', '_replacement', 'string', 'mode',
     editor='Text Editor',
     # The raw text in the pattern box, code editor or no -- is the key of the text box
     _pattern='',
@@ -21,6 +22,7 @@ ss.setup(
     code_pattern={'text':'', 'id':-1},
     # The string in the string to match box -- is the key of the string box
     string='',
+    mode='Search',
     editor_kwargs = dict(
         lang='python',
         theme='dark',

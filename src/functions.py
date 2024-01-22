@@ -20,15 +20,20 @@ def complimentary_color(*color, rtn:Literal['html', 'rgb', 'rgba', 'opengl', 'hs
     return parse_color(*map(lambda i: i*255, colorsys.hsv_to_rgb((h + .5) % 1.0001, s, v)), rtn=rtn)
 
 # Make LaTeX happy
-# TODO Test this
-def escape(s):
-    s = re.escape(s)
-    s = re.sub(r'\\-', '-', s)
-    s = re.sub(r'\\\(', '(', s)
-    s = re.sub(r'\\\)', ')', s)
-    s = re.sub(r'\\\?', '?', s)
-    # s = re.sub(r'$', r'\$', s)
-    # s = re.sub(r'$', '\$', s)
+# TODO $ are uncolored
+# [`~!@#$%^&*()-_=+[{]}\|;:'",<.>/?¢]]
+def escape_latex(s):
+    # Escape backslashes before we add any
+    s = re.sub(r'\\', '\\\\textbackslash', s)
+
+    to_escape = '&%#_{}'
+    for esc in to_escape:
+        s = re.sub(esc, f'\\{esc}', s)
+
+    # In LaTeX, these are handled differently
+    s = re.sub('~',  '\\\\textasciitilde', s)
+    s = re.sub(r'\^',  '\\\\textasciicircum', s)
+
     return s.strip()
 
 def formatInput2code(s):
@@ -85,6 +90,10 @@ def run_code(pattern):
     return var if successful else None
 
 def show_matches(data, mode):
+    if not len(data['matches']):
+        st.info('No Matches Found')
+        return
+
     for match in data['matches']:
         # This is the html hack way of doing it. It doesn't work as well as the latex version.
         # st.markdown(f"""
@@ -99,9 +108,9 @@ def show_matches(data, mode):
         # Cause that makes sense.
         if '$' in match['match']['string']:
             # Apparently, there's no way to escape a $ that I can find
-            latex = f'{escape(match["match"]["string"])} ({match["match"]["start"]}:{match["match"]["end"]})'
+            latex = f'{escape_latex(match["match"]["string"])} ({match["match"]["start"]}:{match["match"]["end"]})'
         else:
-            latex = f'$\\text{{\\color{{{match["match"]["color"]}}}{escape(match["match"]["string"])}}} \\textit{{({match["match"]["start"]}:{match["match"]["end"]})}}$'
+            latex = f'$\\text{{\\color{{{match["match"]["color"]}}}{escape_latex(match["match"]["string"])}}} \\textit{{({match["match"]["start"]}:{match["match"]["end"]})}}$'
         fold = st.expander(latex, (len(data['matches']) == 1) and mode != 'Replace')
 
         if not len(match['unnamedGroups']) and not len(match['namedGroups']):
