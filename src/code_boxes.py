@@ -14,7 +14,7 @@ def pattern_box(snippets):
 
         prev_id = ss.code_pattern['id']
 
-        resp = code_editor(default if ss.tutorial else (ss.code_pattern + ss.pattern_to_add),
+        resp = code_editor(default if ss.tutorial else (ss.code_pattern['text'] + ss.pattern_to_add),
             snippets=[snippets, ss.remove_snippets],
             focus=True,
             key='code_pattern',
@@ -47,8 +47,8 @@ def replace_box(snippets):
         st.markdown(name)
 
         prev_id = ss.code_replacement['id']
-        resp = code_editor(default if ss.tutorial else (ss.code_replacement + ss.replacement_to_add),
-            snippets=[replacement_snippets, snippetsRemove],
+        resp = code_editor(default if ss.tutorial else (ss.code_replacement['text'] + ss.replacement_to_add),
+            snippets=[replacement_snippets, ss.remove_snippets],
             key='code_replacement',
             **ss.editor_kwargs
         )

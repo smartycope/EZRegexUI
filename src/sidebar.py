@@ -45,35 +45,35 @@ def add_part(input, add_to_replace_box=False):
 
 
 def resolve_current_text():
-    raise NotImplementedError('TODO')
     """ If we're switching between text box types, make sure the current text isn't lost """
     replacement = '' if (r := ss.get('replacement')) else r
-    if ss['_text_editor'] == 'Code Editor':
-        # We're switching from text editor to Code editor
-        ss.pattern = {'text':ss.pattern, 'id':-1}
-        ss.replacement = {'text':replacement, 'id':-1}
+    # We're switching from text editor to Code editor
+    if ss.editor == 'Code Editor':
+        ss.code_pattern = {'text':ss._pattern, 'id':-1}
+        ss.code_replacement = {'text':ss._replacement, 'id':-1}
     else:
         # We're switching from Code ekditor to text editor
-        ss.pattern = ss.pattern['text']
+        ss._pattern = ss.code_pattern['text']
+        ss._replacement = ss.code_replacement['text']
         # If we haven't changed anything since we forcefully made it a string, don't change it again
-        if 'replacement' in ss and type(replacement) is dict:
-            ss.replacement = replacement['text']
+        # if 'replacement' in ss and type(replacement) is dict:
+            # ss.replacement = replacement['text']
         # Causes niche errors if we don't do this
-        if 'replacement_toAdd' in ss:
-            del ss['replacement_toAdd']
+        # if 'replacement_toAdd' in ss:
+            # del ss['replacement_toAdd']
 
-    params = st.experimental_get_query_params()
+    # params = st.experimental_get_query_params()
     # print(params)
-    # TODO: This is very inelegant. Fix this.
-    if 'editor' not in params:
-        params['editor'] = [ss['_text_editor'].split(' ')[0].lower()]
-    else:
-        try:
-            params['editor'][0] = ss['_text_editor'].split(' ')[0].lower()
-        except IndexError:
-            params['editor'] = [ss['_text_editor'].split(' ')[0].lower()]
+    # # TODO: This is very inelegant. Fix this.
+    # if 'editor' not in params:
+    #     params['editor'] = [ss['_text_editor'].split(' ')[0].lower()]
+    # else:
+    #     try:
+    #         params['editor'][0] = ss['_text_editor'].split(' ')[0].lower()
+    #     except IndexError:
+    #         params['editor'] = [ss['_text_editor'].split(' ')[0].lower()]
 
-    st.experimental_set_query_params(**params)
+    # st.experimental_set_query_params(**params)
 
 # Because strings are preserved, we have to reset these on going out of tutorial mode
 def erase_current_strings():
