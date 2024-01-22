@@ -152,7 +152,6 @@ if len(pattern):
             '### Replaced String:'
             _tutorial('replaced')
 
-            debug(data)
             st.code(re.sub(
                 data['regex'],
                 str(run_code(replacement)) if len(replacement) else '',
