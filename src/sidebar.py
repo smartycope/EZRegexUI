@@ -16,7 +16,7 @@ def add_part(input, add_to_replace_box=False):
     get = 'replacement' if add_to_replace_box else 'pattern'
 
     # Actually get it from the session state
-    cur = ss._replacement
+    cur = ss[f'_{get}']
 
     # Figure out what needs to be added exactly
     if cur is None or not len(cur):
@@ -26,7 +26,8 @@ def add_part(input, add_to_replace_box=False):
     # This doesn't really work with the Code editor
     elif ss.editor == 'Text Editor' and (m := re.search((er.group('()') + ow + stringEnd).str(), cur)) is not None:
         # We can do this here because this if block is only used if we're using the text editor
-        ss.pattern = ss.pattern[:-1]
+        # ss._pattern = ss._pattern[:-1]
+        ss[f'_{get}'] = ss[f'_{get}'][:-1]
         to_add = cur[(-len(m.group()))+1:(-len(m.group()))+2] + input + ')'
     else:
         to_add = ' + ' + input

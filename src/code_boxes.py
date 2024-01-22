@@ -1,7 +1,7 @@
 from code_editor import code_editor
 import streamlit as st
 from Cope.streamlit import ss
-
+from Cope import debug
 replacement_snippets = ''
 
 
@@ -15,9 +15,9 @@ def pattern_box(snippets):
         prev_id = ss.code_pattern['id']
 
         resp = code_editor(default if ss.tutorial else (ss.code_pattern + ss.pattern_to_add),
-            key='code_pattern',
             snippets=[snippets, ss.remove_snippets],
             focus=True,
+            key='code_pattern',
             **ss.editor_kwargs
         )
 
@@ -28,9 +28,9 @@ def pattern_box(snippets):
         pattern = resp['text']
         ss._pattern = pattern
     else:
+        ss._pattern = default if ss.tutorial else (ss._pattern + ss.pattern_to_add)
         pattern = st.text_area(
-            name,
-            default if ss.tutorial else (ss._pattern + ss.pattern_to_add),
+            label=name,
             key='_pattern'
         )
 
@@ -49,7 +49,7 @@ def replace_box(snippets):
         prev_id = ss.code_replacement['id']
         resp = code_editor(default if ss.tutorial else (ss.code_replacement + ss.replacement_to_add),
             snippets=[replacement_snippets, snippetsRemove],
-            key='replacement',
+            key='code_replacement',
             **ss.editor_kwargs
         )
 
@@ -60,12 +60,12 @@ def replace_box(snippets):
         replacement = resp['text']
         ss._replacement = replacement
     else:
+        ss._replacement = default if ss.tutorial else (ss._replacement + ss.replacement_to_add)
         replacement = st.text_area(
-            name,
-            default if ss.tutorial else (ss.get('replacement') or ""),
-            key='replacement'
+            label=name,
+            key='_replacement'
         )
 
-    ss.pattern_to_add = ''
+    ss.replacement_to_add = ''
 
     return replacement
