@@ -5,18 +5,22 @@ from ezregex import *
 import builtins
 import inspect
 from rich import print
-# Remove these when I get to version 1.6.1
-ifFollowedBy = if_followed_by = ifProcededBy
-if_exists = ifExists
-ifNotFollowedBy = if_not_followed_by = ifNotProcededBy
+from Cope.colors import parse_color
+from typing import Literal
+from Cope.streamlit import ss
+import colorsys
 
 def rgbToHex(rgb):
     return f'#{int(rgb[0]):02x}{int(rgb[1]):02x}{int(rgb[2]):02x}'
 
-def invertColor(rgba):
-    return tuple(255 - c for c in rgba)
+# Remove this when Cope>=2.3.2
+def complimentary_color(*color, rtn:Literal['html', 'rgb', 'rgba', 'opengl', 'hsv', 'hls', 'yiq']='rgb'):
+    """ Returns the color opposite it on the color wheel, with the same saturation and value. """
+    h, s, v = parse_color(*color, rtn='hsv')
+    return parse_color(*map(lambda i: i*255, colorsys.hsv_to_rgb((h + .5) % 1.0001, s, v)), rtn=rtn)
 
 # Make LaTeX happy
+# TODO Test this
 def escape(s):
     s = re.escape(s)
     s = re.sub(r'\\-', '-', s)
@@ -31,7 +35,6 @@ def formatInput2code(s):
     # keywords = set(dir(builtins) + dir(er) + re.findall((lineStart + group(word) + ifFollowedBy(ow + '=')).str(), s))
     # print(anyExcept(anyof(*keywords), type='.*'))
     # s = re.sub((anyExcept('literal', type='.*')).str(), '"' + replace_entire.str() + '"', s)
-    print(s)
     lines = s.splitlines()
     # Remove the last lines which are actually comments
     while s.splitlines()[-1].strip().startswith('#'):
@@ -54,10 +57,13 @@ def snippify(func:str):
         return func
     else:
         sig = inspect.signature(element)
-        rtn = func + '(' + ', '.join('${' + str(cnt+1) + ':' + p.name + '}' for cnt, p in enumerate(sig.parameters.values()) if p.default == inspect._empty) + ')' + '$0'
-        return rtn
+        return func + '(' + ', '.join(
+            '${' + str(cnt+1) + ':' + p.name + '}'
+            for cnt, p in enumerate(sig.parameters.values())
+            if p.default == inspect._empty
+        ) + ')' + '$0'
 
-def runCode(pattern):
+def run_code(pattern):
     successful = False
     # Run the code, get the var, and get the JSON search info
     # Set the variable before the end of the last line so we can do variables in the text_area
@@ -78,9 +84,9 @@ def runCode(pattern):
 
     return var if successful else None
 
-def showMatches(data, mode, groupTutorialText):
+def show_matches(data, mode):
     for match in data['matches']:
-        # print(match)
+        # This is the html hack way of doing it. It doesn't work as well as the latex version.
         # st.markdown(f"""
             # <style>
             # div[data-testid="stExpander"] div[role="button"] p {{
@@ -90,6 +96,7 @@ def showMatches(data, mode, groupTutorialText):
         # """, unsafe_allow_html=True)
 
         # We're using latex here because for SOME reason expanders support named colors, but NOT arbitrary colors
+        # Cause that makes sense.
         if '$' in match['match']['string']:
             # Apparently, there's no way to escape a $ that I can find
             latex = f'{escape(match["match"]["string"])} ({match["match"]["start"]}:{match["match"]["end"]})'
@@ -101,14 +108,14 @@ def showMatches(data, mode, groupTutorialText):
             fold.markdown('No groups captured')
             continue
 
-        if st.session_state.tutorial:
-            fold.caption(groupTutorialText)
+        if ss.tutorial:
+            fold.caption(ss.texts['tutorial']['groups'])
 
         if len(match['unnamedGroups']):
             fold.markdown('#### Unnamed Groups')
 
         for cnt, group in enumerate(match['unnamedGroups']):
-            inverse = rgbToHex(invertColor([int(c, base=16) for c in match['match']['color'][1::2]]))
+            inverse = rgbToHex(complimentary_color([int(c, base=16) for c in match['match']['color'][1::2]]))
             fold.markdown(f'''
                 {cnt+1}: <span style="background-color: {group["color"]}; color: {inverse};">{group["string"]}</span>
                 <span style="color: white; font-style: italic;"> ({group["start"]}:{group["end"]})</span>
@@ -117,7 +124,7 @@ def showMatches(data, mode, groupTutorialText):
         if len(match['namedGroups']):
             fold.markdown('#### Named Groups')
         for name, group in match['namedGroups'].items():
-            inverse = rgbToHex(invertColor([int(c, base=16) for c in match['match']['color'][1::2]]))
+            inverse = rgbToHex(complimentary_color([int(c, base=16) for c in match['match']['color'][1::2]]))
             fold.markdown(f'''
                 {name}: <span style="background-color: {group["color"]}; color: {inverse};">{group["string"]}</span>
                 <span style="color: white; font-style: italic;"> ({group["start"]}:{group["end"]})</span>

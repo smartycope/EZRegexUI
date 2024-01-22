@@ -1,3 +1,4 @@
 ezregex>=1.4.3
+Cope>=2.3.1
 streamlit
 streamlit-code-editor

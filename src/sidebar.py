@@ -5,107 +5,91 @@ import streamlit as st
 import json as _json
 import inspect
 from src.functions import snippify, camel2snake
-# from src.functions import tutorial as _tutorial
+from Cope.streamlit import ss
 
-# All the text is stored in here to make the code look better
-with open('text.json', 'r') as f:
-    texts = _json.load(f)
-
-# TODO: This section is copied from main.py. It should be in either one or the other
-default_editor = 'Code Editor'
-if 'replacement' not in st.session_state:
-    if st.experimental_get_query_params().get('editor') is None:
-        st.session_state.replacement = {'text':'', 'id':-1} if default_editor == 'Code Editor' else ''
-    elif st.experimental_get_query_params().get('editor') == 'text' or st.experimental_get_query_params().get('editor')[0] == 'text':
-        st.session_state.replacement = ''
-    else:
-        st.session_state.replacement = {'text':'', 'id':-1}
 
 # Function for adding side bar elements to pattern when they're clicked
-def addPart(input, _replace=False):
-    global replace, replacement
+def add_part(input, add_to_replace_box=False):
     # If there's parameters, remove them. They can reference the side panel.
     input = re.sub(str('(' + matchMax(anything + optional(er.group(comma))) + ')'), '()', input)
-    get = 'pattern'
-    if _replace:
-        st.session_state['replace_mode'] = True
-        replace = True
-        get = 'replacement'
+
+    get = 'replacement' if add_to_replace_box else 'pattern'
 
     # Actually get it from the session state
-    if st.session_state['_text_editor'] == 'Code Editor':
-        cur = st.session_state[get]['text']
-    else:
-        cur = st.session_state[get]
+    cur = ss._replacement
 
     # Figure out what needs to be added exactly
     if cur is None or not len(cur):
-        newPart = input
+        to_add = input
     elif re.search((optional(' ') + anyof('+', '<<', '>>', '*') + optional(' ') + stringEnd).str(), cur) is not None:
-        newPart = input
+        to_add = input
     # This doesn't really work with the Code editor
-    elif st.session_state['_text_editor'] == 'Text Editor' and (m := re.search((er.group('()') + ow + stringEnd).str(), cur)) is not None:
+    elif ss.editor == 'Text Editor' and (m := re.search((er.group('()') + ow + stringEnd).str(), cur)) is not None:
         # We can do this here because this if block is only used if we're using the text editor
-        st.session_state.pattern = st.session_state.pattern[:-1]
-        newPart = cur[(-len(m.group()))+1:(-len(m.group()))+2] + input + ')'
+        ss.pattern = ss.pattern[:-1]
+        to_add = cur[(-len(m.group()))+1:(-len(m.group()))+2] + input + ')'
     else:
-        newPart = ' + ' + input
+        to_add = ' + ' + input
 
     # Set it to be added
-    if st.session_state['_text_editor'] == 'Code Editor':
-        if get+'_toAdd' in st.session_state:
-            st.session_state[get+'_toAdd'] += newPart
-        else:
-            st.session_state[get+'_toAdd'] = newPart
-    else:
-        st.session_state.pattern += newPart
+    # if ss['_text_editor'] == 'Code Editor':
+    #     if get+'_toAdd' in ss:
+    #         ss[get+'_toAdd'] += to_add
+    #     else:
+    #         ss[get+'_toAdd'] = to_add
 
-def _tutorial(key):
-    if st.session_state.tutorial:
-        st.caption(texts['tutorial'][key])
+    # else:
+    # ss.pattern += to_add
+    ss[f'{get}_to_add'] += to_add
+
 
 def resolve_current_text():
+    raise NotImplementedError('TODO')
     """ If we're switching between text box types, make sure the current text isn't lost """
-    replacement = '' if (r := st.session_state.get('replacement')) else r
-    if st.session_state['_text_editor'] == 'Code Editor':
+    replacement = '' if (r := ss.get('replacement')) else r
+    if ss['_text_editor'] == 'Code Editor':
         # We're switching from text editor to Code editor
-        st.session_state.pattern = {'text':st.session_state.pattern, 'id':-1}
-        st.session_state.replacement = {'text':replacement, 'id':-1}
+        ss.pattern = {'text':ss.pattern, 'id':-1}
+        ss.replacement = {'text':replacement, 'id':-1}
     else:
-        # We're switching from Code editor to text editor
-        st.session_state.pattern = st.session_state.pattern['text']
+        # We're switching from Code ekditor to text editor
+        ss.pattern = ss.pattern['text']
         # If we haven't changed anything since we forcefully made it a string, don't change it again
-        if 'replacement' in st.session_state and type(replacement) is dict:
-            st.session_state.replacement = replacement['text']
+        if 'replacement' in ss and type(replacement) is dict:
+            ss.replacement = replacement['text']
         # Causes niche errors if we don't do this
-        if 'replacement_toAdd' in st.session_state:
-            del st.session_state['replacement_toAdd']
+        if 'replacement_toAdd' in ss:
+            del ss['replacement_toAdd']
 
     params = st.experimental_get_query_params()
     # print(params)
     # TODO: This is very inelegant. Fix this.
     if 'editor' not in params:
-        params['editor'] = [st.session_state['_text_editor'].split(' ')[0].lower()]
+        params['editor'] = [ss['_text_editor'].split(' ')[0].lower()]
     else:
         try:
-            params['editor'][0] = st.session_state['_text_editor'].split(' ')[0].lower()
+            params['editor'][0] = ss['_text_editor'].split(' ')[0].lower()
         except IndexError:
-            params['editor'] = [st.session_state['_text_editor'].split(' ')[0].lower()]
+            params['editor'] = [ss['_text_editor'].split(' ')[0].lower()]
 
     st.experimental_set_query_params(**params)
 
+# Because strings are preserved, we have to reset these on going out of tutorial mode
+def erase_current_strings():
+    if not ss.tutorial:
+        ss.reset()
 
-def sidebar(operatorText, settingsTexts):
+def sidebar():
     snippets = ''
     with st.sidebar:
         st.image('./favicon.png')
         left, right = st.columns(2)
         style = left.radio('Style', ['camelCase', 'snake_case'], horizontal=True, index=1)
         right.markdown('')
-        tutorial = right.checkbox('Walkthrough', key='tutorial')
+        right.checkbox('Walkthrough', key='tutorial', on_change=erase_current_strings)
 
         st.header('Elements')
-        _tutorial('sidebar')
+        ss._tutorial('sidebar')
 
         s = ''
         # Add all the buttons
@@ -134,18 +118,17 @@ def sidebar(operatorText, settingsTexts):
                         sig = inspect.signature(actual)
                         name += '(' + ', '.join(p.name for p in sig.parameters.values()) + ')'
 
-                    kwargs = {'_replace': True} if groupName == 'replacement' else {}
-                    st.button(name, on_click=addPart, args=(name,), kwargs=kwargs, help=help)
+                    st.button(name, on_click=add_part, args=(name, groupName == 'replacement'), help=help)
 
-                    if tutorial and help is not None:
+                    if ss.tutorial and help is not None:
                         st.caption(help)
 
         # Add the operators section
         with st.expander('Operators'):
-            st.markdown(operatorText)
+            st.markdown(ss.texts['operators'])
 
         # Add a settings section
         with st.expander('Settings'):
-            st.radio('Text Boxes', ('Code Editor', 'Text Editor'), help=settingsTexts['textBoxes'], key='_text_editor', on_change=resolve_current_text)
+            st.radio('Text Boxes', ('Code Editor', 'Text Editor'), help=ss.texts['settings']['textBoxes'], key='editor', on_change=resolve_current_text)
 
     return snippets
