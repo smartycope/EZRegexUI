@@ -5,8 +5,8 @@
     "stringPlaceholder":"Leave empty to automatically generate an example of what it would match",
     "replacementHelp":"This accepts valid Python syntax. The last line must be an EZRegex expression",
     "tutorial":{
-        "main": "Welcome to EZRegex!\n\nThis is a fancy frontend for the ezregex Python library, which is an abstraction on top of Regular Expressions. You don't need to know any Regular Expression syntax to use this.\n\nIt's also not limited to Python! You can copy the regex provided below, and it should work with most languages which support Regular Expressions (additional dialects are coming soon). All the elements available are provided on the side with buttons, which you can click to add to the pattern. They're also available as snippets, so you can write patterns directly.",
-        "pattern": "This accepts valid Python syntax. The last line must be an EZRegex expression. Note that if you're using the Code Editor, you have to hit Ctrl+Enter before using one of the sidebar buttons, otherwise your edits will be overwritten",
+        "main": "Welcome to EZRegex!\n\nThis is a fancy frontend for the ezregex Python library, which is an abstraction on top of Regular Expressions. You don't need to know any Regular Expression syntax to use this.\n\nIt's also not limited to Python! You can copy the regex provided below, and it should work with most languages which support Regular Expressions (additional dialects coming soon). All the elements available are provided on the side with buttons, which you can click to add to the pattern. They're also available as snippets, so you can write patterns directly.",
+        "pattern": "This accepts valid Python syntax. The last line must be an EZRegex expression. Note that if you're using the Code Editor, you have to hit Ctrl+Enter before using one of the sidebar buttons, otherwise your edits will be overwritten\n\nFeel free to try the new Generator option, which lets you specify strings that you want an expression to match and not match, and it generates that expression for you!",
         "string": "Put text here you want to try to match the pattern against. Or you can leave it empty to auto-generate some text which would match the pattern",
         "replaceBox": "Here, put text you want to replace (uses re.sub()). See the replacement section (on the sidebar, at the bottom) for adding groups",
         "matching": "Here you can see your string (provided, or generated). Text color denotes induvidual matches, and background color indicates seperate matched named and unnamed groups.",
@@ -21,7 +21,10 @@
         "defaultReplace": "# rgroup() is an alias of replaceGroup()\nreplaceGroup(1) + ': ' + rgroup('value')"
     },
     "settings":{
-        "textBoxes": "The Code Editor is better if you're writing expressions yourself. It can be a little buggy, but works good for the most part.\n\nThe Text Editor is the built-in streamlit text box, which works a little better with the buttons, but doesn't have syntax highlighting or snippets."
+        "textBoxes": "The Code Editor is better if you're writing expressions yourself. It works good, but it doesn't always interact with the buttons nicely.\n\nThe Text Editor is the built-in streamlit text box, which works a little better with the buttons, but doesn't have syntax highlighting or snippets.\n\nThe Auto-Generator lets you give it specify strings that should and shouldn't match, and it generates a regex expression that fit those criteria",
+        "gen_calls": "How many calls the recursive algorithm runs through. Increasing this can make it significantly slower",
+        "gen_restarts": "How many times the algorithm restarts to try another path. Increasing this can make it dramatically slower",
+        "gen_chunk": "The largest sized chunk allowed that we OR together"
     },
     "modeCaptions":[
         "Find all sequences in the search string which match the pattern",

@@ -31,8 +31,8 @@ def escape_latex(s):
         s = re.sub(esc, f'\\{esc}', s)
 
     # In LaTeX, these are handled differently
-    s = re.sub('~',  '\\\\textasciitilde', s)
-    s = re.sub(r'\^',  '\\\\textasciicircum', s)
+    s = re.sub('~',  '\\\\textasciitilde ', s)
+    s = re.sub(r'\^',  '\\\\textasciicircum ', s)
 
     return s.strip()
 

@@ -130,6 +130,18 @@ def sidebar():
 
         # Add a settings section
         with st.expander('Settings'):
-            st.radio('Text Boxes', ('Code Editor', 'Text Editor'), help=ss.texts['settings']['textBoxes'], key='editor', on_change=resolve_current_text)
+            editor = st.radio(
+                'Text Boxes',
+                ('Code Editor', 'Text Editor', 'Auto-Generate'),
+                help=ss.texts['settings']['textBoxes'],
+                key='editor',
+                on_change=resolve_current_text
+            )
+
+            if editor == 'Auto-Generate':
+                st.number_input('Calls', 1, None, 1000, 50, key='gen_calls', help=ss.texts['settings']['gen_calls'])
+                st.number_input('Restarts', 1, 50, 3, 1, key='gen_restarts', help=ss.texts['settings']['gen_restarts'])
+                st.number_input('Chunk Size', 2, 20, 5, 1, key='gen_chunk',  help=ss.texts['settings']['gen_chunk'])
+
 
     return snippets

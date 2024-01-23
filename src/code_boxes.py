@@ -2,6 +2,7 @@ from code_editor import code_editor
 import streamlit as st
 from Cope.streamlit import ss
 from Cope import debug
+from ezregex import generate_regex
 replacement_snippets = ''
 
 
@@ -27,14 +28,44 @@ def pattern_box(snippets):
 
         pattern = resp['text']
         ss._pattern = pattern
-    else:
+
+    elif ss.editor == 'Text Editor':
         ss._pattern = default if ss.tutorial else (ss._pattern + ss.pattern_to_add)
         pattern = st.text_area(
             label=name,
             key='_pattern'
         )
+    # Make the data editor to put in things that are supposed to match and not match
+    else:
+        pattern = ''
+        with st.form('_generation_form'):
+            names = ('Strings That Should Match', 'Strings That Shouldn\'t Match')
+
+            data = st.data_editor(
+                # ss.data,
+                [['', '']]*3,
+                hide_index=True,
+                use_container_width=True,
+                column_config={str(cnt): st.column_config.TextColumn(default='', label=names[cnt]) for cnt in range(2)},
+                num_rows='dynamic',
+                key='_data'
+            )
+
+            if st.form_submit_button('Generate'):
+                winners = []
+                losers = []
+                for w, l in data:
+                    winners.append(w)
+                    losers.append(l)
+
+                # Add the raw, so it works nicely with the rest of our existing code
+                pattern = 'raw("' + generate_regex(winners, losers, ss.gen_calls, ss.gen_restarts, ss.gen_chunk) + '")'
+
 
     ss.pattern_to_add = ''
+
+    if ss.tutorial:
+        return default
 
     return pattern
 
@@ -59,6 +90,7 @@ def replace_box(snippets):
 
         replacement = resp['text']
         ss._replacement = replacement
+    # elif ss.editor == 'Text Editor'
     else:
         ss._replacement = default if ss.tutorial else (ss._replacement + ss.replacement_to_add)
         replacement = st.text_area(
@@ -67,5 +99,8 @@ def replace_box(snippets):
         )
 
     ss.replacement_to_add = ''
+
+    if ss.tutorial:
+        return default
 
     return replacement

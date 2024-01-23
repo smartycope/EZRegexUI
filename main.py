@@ -5,11 +5,12 @@ import streamlit as st
 import json as _json
 from Cope.streamlit import ss
 
+
 # ─── SETUP ──────────────────────────────────────────────────────────────────────
 # Ensures that all the defaults are properly loaded
 # TODO: add query params
 ss.setup(# '_pattern', '_replacement', 'string', 'mode',
-    editor='Text Editor',
+    editor='Code Editor',
     # The raw text in the pattern box, code editor or no -- is the key of the text box
     _pattern='',
     pattern_to_add='',
@@ -30,7 +31,11 @@ ss.setup(# '_pattern', '_replacement', 'string', 'mode',
         allow_reset=True,
         props={'wrapEnabled':'true',},
         # focus=True,
-    )
+    ),
+    # These are the kwarg parameters of generate_regex()
+    gen_calls=1000,
+    gen_restarts=3,
+    gen_chunk=5,
 )
 
 
@@ -67,7 +72,6 @@ st.set_page_config(
         'About': ss.texts['about']
     }
 )
-
 
 # ─── Sidebar ────────────────────────────────────────────────────────────────────
 # Yes, the sidebar returns the snippets. It's only because it's already looping
@@ -153,7 +157,6 @@ if len(pattern):
             st.divider()
             '### Replaced String:'
             _tutorial('replaced')
-
             st.code(re.sub(
                 data['regex'],
                 str(run_code(replacement)) if len(replacement) else '',
@@ -164,5 +167,8 @@ if len(pattern):
             st.divider()
             '### Split Parts:'
             _tutorial('split')
+            debug(data['regex'])
+            debug(string)
             parts = re.split(data['regex'], string)
+            debug(parts)
             st.table(repr(i) for i in parts)
