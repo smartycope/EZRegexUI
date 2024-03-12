@@ -15,7 +15,10 @@ def pattern_box(snippets):
 
         prev_id = ss.code_pattern['id']
 
-        resp = code_editor(default if ss.tutorial else (ss.code_pattern['text'] + ss.pattern_to_add),
+        # new = ss.code_pattern['text'] + ss.pattern_to_add
+        new = (ss.cur_pattern or "") + ss.pattern_to_add
+        print("current pattern is", ss.cur_pattern)
+        resp = code_editor(default if ss.tutorial else new,
             snippets=[snippets, ss.remove_snippets],
             focus=True,
             key='code_pattern',
@@ -23,11 +26,15 @@ def pattern_box(snippets):
         )
 
         if prev_id != resp['id']:
+            print('rerunning')
             ss.pattern_to_add = ''
             st.rerun()
 
-        pattern = resp['text']
+        # pattern = resp['text']
+        # Don't bother getting the text from the box, get the text it's supposed to be
+        pattern = new
         ss._pattern = pattern
+        # print('pattern is', ss._pattern)
 
     elif ss.editor == 'Text Editor':
         ss._pattern = default if ss.tutorial else (ss._pattern + ss.pattern_to_add)

@@ -7,6 +7,11 @@ import inspect
 from src.functions import snippify, camel2snake
 from Cope.streamlit import ss
 
+# from streamlit_javascript import st_javascript
+from time import time as now
+from streamlit_local_storage import LocalStorage
+import streamlit.components.v1 as components
+
 
 # Function for adding side bar elements to pattern when they're clicked
 def add_part(input, add_to_replace_box=False):
@@ -14,6 +19,21 @@ def add_part(input, add_to_replace_box=False):
     input = re.sub(str('(' + matchMax(anything + optional(er.group(comma))) + ')'), '()', input)
 
     get = 'replacement' if add_to_replace_box else 'pattern'
+    components.html("""
+    <script>
+    const doc = window.parent.document;
+    const iframes = Array.from(doc.querySelectorAll("iframe"));
+    const ace_layers = Array.from(iframes.find((e) => e.title === "code_editor.code_editor").contentDocument.getElementsByClassName("ace_layer"));
+    const element = ace_layers.find((e) => e.classList.value === "ace_layer ace_text-layer");
+    localStorage.setItem("_tmp", JSON.stringify(element.innerText));
+    console.log('Loaded');
+    </script>
+    """,
+        height=0,
+        width=0,
+    )
+    ss.cur_pattern = LocalStorage().getItem('_tmp', .1)
+    print(ss.cur_pattern)
 
     # Actually get it from the session state
     cur = ss[f'_{get}']
@@ -143,5 +163,31 @@ def sidebar():
                 st.number_input('Restarts', 1, 50, 3, 1, key='gen_restarts', help=ss.texts['settings']['gen_restarts'])
                 st.number_input('Chunk Size', 2, 20, 5, 1, key='gen_chunk',  help=ss.texts['settings']['gen_chunk'])
 
+        if ss.editor == 'Code Editor':
+            # Apparently, these work in the sidebar. They're here, becuase they create some useless
+            # vertical whitespace, and this way it just creates it at the bottom of the sidebar.
+
+            # This exits out of the iframe document that streamlit-javascript puts around code,
+            # then searches for iframes which hold documents (which is what the code box is in),
+            # gets the one for the code box, and then searches for the div element inside that
+            # that stores the code, and then gets the innerText from that and stores it in localStorage.
+            # st_javascript("""localStorage.setItem("_tmp",
+            #     JSON.stringify(Array.from( Array.from(window.frameElement.getRootNode().querySelectorAll("iframe")).find((e) => e.title === "code_editor.code_editor").contentDocument.getElementsByClassName("ace_layer")).find((e) => e.classList.value === "ace_layer ace_text-layer").innerText)
+            # )""", key=now())
+
+
+
+            # This uses a *seperate* library (cause streamlit-javascript bugged out on me repeatedly)
+            # to get the value we just stored in localStorage
+            # ss.cur_pattern = LocalStorage().getItem('_tmp', .1)
+
+            # These are just because for some reason, it runs twice when the Submit button is pressed.
+            # This just removes the first one and just uses the second one (because the first one
+            # is outdated). Note that this occasionally doesn't run, but only if the input hasn't
+            # changed, so it's okay, and occasionally runs twice, which is actually okay.
+            # TODO refix this
+            # ss._disable_run = not ss._disable_run
+
+            print('----', ss.cur_pattern)
 
     return snippets

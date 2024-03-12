@@ -4,6 +4,7 @@ from ezregex import *
 import streamlit as st
 import json as _json
 from Cope.streamlit import ss
+import streamlit.components.v1 as components
 
 
 # ─── SETUP ──────────────────────────────────────────────────────────────────────
@@ -11,10 +12,12 @@ from Cope.streamlit import ss
 # TODO: add query params
 ss.setup(# '_pattern', '_replacement', 'string', 'mode',
     editor='Code Editor',
-    # The raw text in the pattern box, code editor or no -- is the key of the text box
+    # The raw text in the pattern box, code editor or no -- is the key of the text box (not code box)
     _pattern='',
+    # The text scraped from the pattern box,
+    cur_pattern='',
     pattern_to_add='',
-    # The raw text in the replacement box, code editor or no -- is the key of the text box
+    # The raw text in the replacement box, code editor or no -- is the key of the text box (not code box)
     _replacement='',
     replacement_to_add='',
     # The raw response from the code box -- is the key of the code box
@@ -29,13 +32,15 @@ ss.setup(# '_pattern', '_replacement', 'string', 'mode',
         theme='dark',
         height=(3, 10),
         allow_reset=True,
-        props={'wrapEnabled':'true',},
+        props={'wrapEnabled':1,},
+        # options={'wrapBehavioursEnabled':'true'},
         # focus=True,
     ),
     # These are the kwarg parameters of generate_regex()
     gen_calls=1000,
     gen_restarts=3,
     gen_chunk=5,
+    _disable_run=False,
 )
 
 
@@ -87,9 +92,10 @@ st.caption(f"Copeland Carter | v{er.__version__}")
 _tutorial('main')
 
 left, right = st.columns([.85, .2])
-right.button('Reload')
+# right.button('Reload')
 mode = left.radio('Mode',
     ['Search', 'Replace', 'Split'],
+#     document.
     captions=ss.texts['modeCaptions'] if ss.tutorial else None,
     horizontal=not ss.tutorial,
     index=0 if not ss.tutorial else 1,
@@ -101,6 +107,21 @@ mode = left.radio('Mode',
 pattern = pattern_box(snippets)
 _tutorial('pattern')
 
+
+
+# element.addEventListener('focusout', (e) => {
+#     console.log('here');
+#     element.dispatchEvent(new Event('submit'));
+# });
+
+# st_javascript("""Array.from(
+#         Array.from(
+#             window.frameElement.getRootNode().querySelectorAll("iframe")
+#         ).find((e) => e.title === "code_editor.code_editor").contentDocument.getElementsByClassName("ace_layer")
+#     ).find((e) => e.classList.value === "ace_layer ace_text-layer").addEventListener('blur', (e) => {
+#         console.log('here'); e.target.dispatchEvent(new Event('submit'))
+#     })
+# """, key=now())
 
 # ─── STRING INPUT BOX ───────────────────────────────────────────────────────────
 string = st.text_area(
@@ -116,6 +137,11 @@ _tutorial('string')
 if mode == 'Replace':
     replacement = replace_box(snippets)
     _tutorial('replaceBox')
+
+
+# All we need is a page refresh to scrape the text from the code box and rerun
+st.button('Submit')
+
 
 # ─── MATCHES ────────────────────────────────────────────────────────────────────
 # Generate all the match stuff, if we can
