@@ -1,4 +1,4 @@
-ezregex>=1.4.3
+ezregex==1.7.0
 Cope>=2.5.1
 streamlit
 streamlit-code-editor
